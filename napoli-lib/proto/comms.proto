@@ -1,0 +1,16 @@
+// Food ordering service protobuf
+syntax = "proto3";
+
+package napoli;
+
+import "models.proto";
+
+message GetOrdersRequest {}
+message GetOrdersReply {
+    repeated Order orders = 1;
+}
+
+// Define a service to return a sample order
+service OrderService {
+    rpc GetOrders (GetOrdersRequest) returns (GetOrdersReply);
+}

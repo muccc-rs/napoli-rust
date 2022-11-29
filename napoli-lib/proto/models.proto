@@ -1,0 +1,18 @@
+// Food ordering service protobuf
+syntax = "proto3";
+
+package napoli;
+
+message OrderEntry {
+    string id = 1; // the slud name / id of this order entry
+    string food = 2;
+    string buyer = 3;
+    uint32 quantity = 4;
+}
+
+message Order {
+    string id = 1;
+    string menuUrl = 2;
+    bool isOpen = 3;
+    repeated OrderEntry entries = 4;
+}
