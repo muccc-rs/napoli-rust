@@ -9,6 +9,7 @@ edition = "2021"
 tonic = "0.8.3"
 tokio = { version = "1.9.0", features = ["full"] }
 napoli-lib = { path = "../napoli-lib" }
+tonic-reflection = "0.6.0"
 
 # server binary
 [[bin]]
