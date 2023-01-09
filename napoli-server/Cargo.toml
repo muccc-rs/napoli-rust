@@ -9,7 +9,13 @@ edition = "2021"
 tonic = "0.8.3"
 tokio = { version = "1.9.0", features = ["full"] }
 napoli-lib = { path = "../napoli-lib" }
+napoli-server-migrations = { path = "../napoli-server-migrations" }
+napoli-server-persistent-entities = { path = "../napoli-server-persistent-entities" }
 tonic-reflection = "0.6.0"
+sea-orm = { version = "^0.10.0", features = [ "sqlx-sqlite", "runtime-tokio-rustls", "macros" ] }
+futures = "0.3.25"
+
+
 
 # server binary
 [[bin]]

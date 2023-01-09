@@ -9,7 +9,7 @@ pub fn create_example_order() -> napoli::Order {
     let mut order = napoli::Order::default();
     order.id = "order-1".to_string();
     order.menu_url = "https://www.napoli-pizza.com/menu".to_string();
-    order.is_open = true;
+    order.state = napoli::OrderState::Open.into();
 
     let mut entry = napoli::OrderEntry::default();
     entry.id = "entry-1".to_string();

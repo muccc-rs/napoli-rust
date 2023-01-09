@@ -1,0 +1,12 @@
+[package]
+name = "napoli-server-persistent-entities"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "napoli_server_persistent_entities"
+path = "src/lib.rs"
+
+[dependencies.sea-orm]
+version = "0.10.3"
