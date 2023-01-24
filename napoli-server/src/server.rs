@@ -6,7 +6,6 @@ use tonic::{transport::Server, Response, Status};
 
 const DATABASE_FILE_NAME: &str = "napoli.sqlite";
 
-// #[derive(Default)]
 pub struct NapoliServer {
     db_handle: DatabaseConnection,
 }
@@ -19,22 +18,30 @@ impl OrderService for NapoliServer {
     ) -> Result<Response<GetOrdersReply>, Status> {
         println!("Got a request: {:?}", request);
 
+        // Get all Orders from the database
         let orders = napoli_server_persistent_entities::order::Entity::find()
             .all(&self.db_handle)
-            .await
-            .unwrap();
+            .await;
 
-        Ok(Response::new(GetOrdersReply {
-            orders: orders
-                .into_iter()
-                .map(|po| napoli_lib::napoli::Order {
-                    id: format!("i{}", po.id),
-                    menu_url: "lmao".to_string(),
-                    state: napoli_lib::napoli::OrderState::Open.into(),
-                    entries: vec![],
-                })
-                .collect(),
-        }))
+        // Convert to our protobuf type
+        match orders {
+            Ok(orders) => Ok(Response::new(GetOrdersReply {
+                orders: orders
+                    .into_iter()
+                    .map(|po| napoli_lib::napoli::Order {
+                        id: format!("i{}", po.id),
+                        menu_url: "lmao".to_string(),
+                        state: napoli_lib::napoli::OrderState::Open.into(),
+                        entries: vec![],
+                    })
+                    .collect(),
+            })),
+            Err(error) => {
+                let error_msg = format!("Error getting orders: {:?}", error);
+                println!("{}", error_msg);
+                Err(Status::internal(error_msg))
+            }
+        }
     }
 }
 

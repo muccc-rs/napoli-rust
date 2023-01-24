@@ -1,8 +1,8 @@
 [workspace]
 
 members = [
-    "./napoli-lib",
-    "./napoli-server",
-    "./napoli-server-migrations",
-    "./napoli-server-persistent-entities",
+    "napoli-lib",
+    "napoli-server",
+    "napoli-server-migrations",
+    "napoli-server-persistent-entities",
 ]
