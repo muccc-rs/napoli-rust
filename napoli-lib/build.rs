@@ -1,5 +1,5 @@
-use std::{env, path::PathBuf};
 use std::io::Result;
+use std::{env, path::PathBuf};
 
 fn main() -> Result<()> {
     // prost_build::compile_protos(&["proto/napoli.proto"], &["proto/"])?;

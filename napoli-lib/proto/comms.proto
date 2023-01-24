@@ -10,7 +10,15 @@ message GetOrdersReply {
     repeated Order orders = 1;
 }
 
+message CreateOrderRequest {
+    string menu_url = 1;
+}
+message CreateOrderReply {
+    Order order = 1;
+}
+
 // Define a service to return a sample order
 service OrderService {
     rpc GetOrders (GetOrdersRequest) returns (GetOrdersReply);
+    rpc CreateOrder (CreateOrderRequest) returns (CreateOrderReply);
 }

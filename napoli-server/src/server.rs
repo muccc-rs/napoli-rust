@@ -1,6 +1,10 @@
+mod model_adapters;
 use napoli_lib::napoli::order_service_server::{OrderService, OrderServiceServer};
-use napoli_lib::napoli::{GetOrdersReply, GetOrdersRequest, FILE_DESCRIPTOR_SET};
+use napoli_lib::napoli::{
+    CreateOrderReply, CreateOrderRequest, GetOrdersReply, GetOrdersRequest, FILE_DESCRIPTOR_SET,
+};
 use napoli_server_migrations::{Migrator, MigratorTrait};
+use sea_orm::ActiveModelTrait;
 use sea_orm::{Database, DatabaseConnection, EntityTrait};
 use tonic::{transport::Server, Response, Status};
 
@@ -29,9 +33,9 @@ impl OrderService for NapoliServer {
                 orders: orders
                     .into_iter()
                     .map(|po| napoli_lib::napoli::Order {
-                        id: format!("i{}", po.id),
-                        menu_url: "lmao".to_string(),
-                        state: napoli_lib::napoli::OrderState::Open.into(),
+                        id: format!("{}", po.id),
+                        menu_url: po.menu_url,
+                        state: po.order_state,
                         entries: vec![],
                     })
                     .collect(),
@@ -42,6 +46,31 @@ impl OrderService for NapoliServer {
                 Err(Status::internal(error_msg))
             }
         }
+    }
+
+    async fn create_order(
+        &self,
+        request: tonic::Request<CreateOrderRequest>,
+    ) -> Result<Response<CreateOrderReply>, Status> {
+        let order = match model_adapters::get_order_from_create_request(request.into_inner()) {
+            Some(order) => order,
+            None => return Err(Status::internal("no order non")),
+        };
+        println!("New Order: {:?}", order);
+        let order = order
+            .save(&self.db_handle)
+            .await
+            .map_err(|err| Status::internal(err.to_string()))?;
+        // TODO(q3k): error handling
+        let ok_order = grpc_check_err(model_adapters::get_create_response_from_order(order))?;
+        Ok(Response::new(ok_order))
+    }
+}
+
+fn grpc_check_err<T>(res: anyhow::Result<T>) -> std::result::Result<T, Status> {
+    match res {
+        Ok(t) => Ok(t),
+        Err(e) => Err(Status::internal(e.to_string())),
     }
 }
 

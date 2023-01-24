@@ -14,6 +14,7 @@ futures = "0.3.25"
 napoli-lib = { path = "../napoli-lib" }
 napoli-server-migrations = { path = "../napoli-server-migrations" }
 napoli-server-persistent-entities = { path = "../napoli-server-persistent-entities" }
+anyhow = "1.0.68"
 
 
 
