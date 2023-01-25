@@ -14,11 +14,8 @@ pub fn get_order_from_create_request(
     })
 }
 
-pub fn get_create_response_from_order<T>(order: T) -> Result<CreateOrderReply>
-where
-    T: TryIntoModel<napoli_server_persistent_entities::order::Model>,
+pub fn get_create_response_from_order(order: napoli_server_persistent_entities::order::Model) -> Result<CreateOrderReply>
 {
-    let order = order.try_into_model().context("Failed to convert order")?;
     Ok(CreateOrderReply {
         order: Some(napoli_lib::napoli::Order {
             id: format!("{}", order.id),

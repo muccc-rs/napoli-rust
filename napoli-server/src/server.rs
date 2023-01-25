@@ -58,7 +58,7 @@ impl OrderService for NapoliServer {
         };
         println!("New Order: {:?}", order);
         let order = order
-            .save(&self.db_handle)
+            .insert(&self.db_handle)
             .await
             .map_err(|err| Status::internal(err.to_string()))?;
         // TODO(q3k): error handling
