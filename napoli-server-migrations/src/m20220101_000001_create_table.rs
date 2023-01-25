@@ -11,20 +11,38 @@ impl MigrationTrait for Migration {
         let schema = Schema::new(manager.get_database_backend());
 
         // Derive from Entity
-        let stmt: TableCreateStatement =
-            schema.create_table_from_entity(napoli_server_persistent_entities::order::Entity);
-
         // Execute create table statement
-        manager.create_table(stmt).await?;
+        manager
+            .create_table(
+                schema.create_table_from_entity(napoli_server_persistent_entities::order::Entity),
+            )
+            .await?;
+        
+        manager
+            .create_table(
+                schema.create_table_from_entity(napoli_server_persistent_entities::order_entry::Entity),
+            )
+            .await?;
         Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        manager.drop_table(Table::drop().table(Order::Table).to_owned()).await
+        manager
+            .drop_table(Table::drop().table(Order::Table).to_owned())
+            .await?;
+
+        manager
+            .drop_table(Table::drop().table(OrderEntry::Table).to_owned())
+            .await
     }
 }
 
 #[derive(Iden)]
 enum Order {
+    Table,
+}
+
+#[derive(Iden)]
+enum OrderEntry {
     Table,
 }

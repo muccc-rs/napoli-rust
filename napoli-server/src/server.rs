@@ -1,10 +1,12 @@
 mod model_adapters;
 use napoli_lib::napoli::order_service_server::{OrderService, OrderServiceServer};
 use napoli_lib::napoli::{
-    CreateOrderReply, CreateOrderRequest, GetOrdersReply, GetOrdersRequest, FILE_DESCRIPTOR_SET,
+    AddOrderEntryRequest, CreateOrderRequest, GetOrdersReply, GetOrdersRequest, SingleOrderReply,
+    FILE_DESCRIPTOR_SET,
 };
 use napoli_server_migrations::{Migrator, MigratorTrait};
-use sea_orm::ActiveModelTrait;
+use napoli_server_persistent_entities::order_entry;
+use sea_orm::{ActiveModelTrait, ModelTrait, Set};
 use sea_orm::{Database, DatabaseConnection, EntityTrait};
 use tonic::{transport::Server, Response, Status};
 
@@ -33,7 +35,7 @@ impl OrderService for NapoliServer {
                 orders: orders
                     .into_iter()
                     .map(|po| napoli_lib::napoli::Order {
-                        id: format!("{}", po.id),
+                        id: po.id,
                         menu_url: po.menu_url,
                         state: po.order_state,
                         entries: vec![],
@@ -51,7 +53,7 @@ impl OrderService for NapoliServer {
     async fn create_order(
         &self,
         request: tonic::Request<CreateOrderRequest>,
-    ) -> Result<Response<CreateOrderReply>, Status> {
+    ) -> Result<Response<SingleOrderReply>, Status> {
         let order = match model_adapters::get_order_from_create_request(request.into_inner()) {
             Some(order) => order,
             None => return Err(Status::internal("no order non")),
@@ -62,8 +64,66 @@ impl OrderService for NapoliServer {
             .await
             .map_err(|err| Status::internal(err.to_string()))?;
         // TODO(q3k): error handling
-        let ok_order = grpc_check_err(model_adapters::get_create_response_from_order(order))?;
+        let order_entries = order
+            .find_related(order_entry::Entity)
+            .all(&self.db_handle)
+            .await
+            .map_err(|err| Status::internal(err.to_string()))?;
+        let ok_order =
+            grpc_check_err(model_adapters::get_single_order_reply(order, order_entries))?;
         Ok(Response::new(ok_order))
+    }
+
+    async fn add_order_entry(
+        &self,
+        request: tonic::Request<AddOrderEntryRequest>,
+    ) -> Result<Response<SingleOrderReply>, Status> {
+        let request = request.into_inner();
+
+        let order = napoli_server_persistent_entities::order::Entity::find_by_id(request.order_id)
+            .one(&self.db_handle)
+            .await
+            .map_err(|err| Status::internal(err.to_string()))?;
+        match order {
+            Some(order) => {
+                if order.order_state != napoli_lib::napoli::OrderState::Open as i32 {
+                    return Err(Status::invalid_argument("Order is not open"));
+                }
+            }
+            None => return Err(Status::invalid_argument("Order does not exist")),
+        }
+
+        // Add order entry
+        let order_entry = order_entry::ActiveModel {
+            order_id: Set(request.order_id),
+            buyer: Set(request.buyer),
+            food: Set(request.food),
+            paid: Set(false),
+            ..Default::default()
+        };
+        order_entry
+            .insert(&self.db_handle)
+            .await
+            .map_err(|err| Status::internal(err.to_string()))?;
+
+        // Return the order
+        let order = napoli_server_persistent_entities::order::Entity::find_by_id(request.order_id)
+            .one(&self.db_handle)
+            .await
+            .map_err(|err| Status::internal(err.to_string()))?;
+        match order {
+            None => Err(Status::internal("Order disappeared")),
+            Some(order) => {
+                let order_entries = order
+                    .find_related(order_entry::Entity)
+                    .all(&self.db_handle)
+                    .await
+                    .map_err(|err| Status::internal(err.to_string()))?;
+                let order =
+                    grpc_check_err(model_adapters::get_single_order_reply(order, order_entries))?;
+                Ok(Response::new(order))
+            }
+        }
     }
 }
 

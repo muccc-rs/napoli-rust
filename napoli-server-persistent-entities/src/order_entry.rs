@@ -4,8 +4,12 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "order_entry")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: i32,
-    pub order_id: Option<i32>,
+    pub id: u32,
+    pub order_id: u32,
+    pub buyer: String,
+    pub food: String,
+    // pub price: i32,
+    pub paid: bool,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
