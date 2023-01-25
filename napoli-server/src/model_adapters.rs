@@ -7,7 +7,8 @@ pub fn get_order_from_create_request(
 ) -> Option<napoli_server_persistent_entities::order::ActiveModel> {
     Some(napoli_server_persistent_entities::order::ActiveModel {
         menu_url: Set(request.menu_url),
-        // You can replace with: #[sea_orm(default_value="1")]
+        // You can replace with: #[sea_orm(default_value="1")] in the model definition,
+        // but loose the ability to use the enum directly there, this is why we do it here
         order_state: Set(napoli_lib::napoli::OrderState::Open as i32),
         ..Default::default() // all other attributes are `NotSet`
     })
