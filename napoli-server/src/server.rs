@@ -7,7 +7,9 @@ use napoli_lib::napoli::{
     SetOrderEntryPaidRequest, SingleOrderReply, FILE_DESCRIPTOR_SET,
 };
 use napoli_server_migrations::{Migrator, MigratorTrait};
+use napoli_server_persistent_entities::order;
 use napoli_server_persistent_entities::order_entry;
+use sea_orm::QueryOrder as _;
 use sea_orm::{ActiveModelTrait, ModelTrait, Set};
 use sea_orm::{Database, DatabaseConnection, EntityTrait};
 use tonic::{transport::Server, Request, Response, Status};
@@ -41,40 +43,19 @@ impl OrderService for NapoliServer {
     ) -> Result<Response<GetOrdersReply>, Status> {
         println!("Got a request: {:?}", request);
 
-        // Get all Orders from the database
-        let orders = napoli_server_persistent_entities::order::Entity::find()
+        let orders = order::Entity::find()
+            .order_by_desc(order::Column::Id)
+            .find_with_related(order_entry::Entity)
             .all(&self.db_handle)
-            .await;
+            .await
+            .map_err(map_err_to_status)?;
 
-        // Convert to our protobuf type
-        match orders {
-            Ok(orders) => {
-                let order_futures = orders.into_iter().map(|order| async {
-                    let order_entries = order
-                        .find_related(order_entry::Entity)
-                        .all(&self.db_handle)
-                        .await?;
-                    let res: Result<_, napoli_server_migrations::DbErr> = Ok(
-                        model_adapters::make_single_order_reply(order, order_entries)
-                            .order
-                            .unwrap(),
-                    );
-                    res
-                });
+        let orders = orders
+            .into_iter()
+            .map(|(order, entries)| model_adapters::max_told_me_so(order, entries.into_iter()))
+            .collect();
 
-                let orders = futures::future::join_all(order_futures).await;
-                let orders: Result<Vec<_>, _> = orders.into_iter().collect();
-
-                Ok(Response::new(GetOrdersReply {
-                    orders: orders.map_err(map_err_to_status)?,
-                }))
-            }
-            Err(error) => {
-                let error_msg = format!("Error getting orders: {:?}", error);
-                println!("{}", error_msg);
-                Err(Status::internal(error_msg))
-            }
-        }
+        Ok(Response::new(GetOrdersReply { orders }))
     }
 
     async fn create_order(

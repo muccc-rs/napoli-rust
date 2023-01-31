@@ -14,24 +14,30 @@ pub fn get_order_from_create_request(
     })
 }
 
+pub fn max_told_me_so(
+    order: napoli_server_persistent_entities::order::Model,
+    order_entries: impl Iterator<Item = napoli_server_persistent_entities::order_entry::Model>,
+) -> napoli_lib::napoli::Order {
+    napoli_lib::napoli::Order {
+        id: order.id,
+        menu_url: order.menu_url,
+        state: order.order_state,
+        entries: order_entries
+            .map(|entry| napoli_lib::napoli::OrderEntry {
+                id: entry.id,
+                buyer: entry.buyer.to_owned(),
+                food: entry.food.to_owned(),
+                paid: entry.paid,
+            })
+            .collect(),
+    }
+}
+
 pub fn make_single_order_reply(
     order: napoli_server_persistent_entities::order::Model,
     order_entries: Vec<napoli_server_persistent_entities::order_entry::Model>,
 ) -> SingleOrderReply {
     SingleOrderReply {
-        order: Some(napoli_lib::napoli::Order {
-            id: order.id,
-            menu_url: order.menu_url,
-            state: order.order_state,
-            entries: order_entries
-                .iter()
-                .map(|entry| napoli_lib::napoli::OrderEntry {
-                    id: entry.id,
-                    buyer: entry.buyer.to_owned(),
-                    food: entry.food.to_owned(),
-                    paid: entry.paid,
-                })
-                .collect(),
-        }),
+        order: Some(max_told_me_so(order, order_entries.into_iter())),
     }
 }
