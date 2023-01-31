@@ -4,7 +4,7 @@ use std::fmt::Display;
 use napoli_lib::napoli::order_service_server::{OrderService, OrderServiceServer};
 use napoli_lib::napoli::{
     AddOrderEntryRequest, CreateOrderRequest, GetOrdersReply, GetOrdersRequest, OrderEntryRequest,
-    SingleOrderReply, FILE_DESCRIPTOR_SET, SetOrderEntryPaidRequest,
+    SetOrderEntryPaidRequest, SingleOrderReply, FILE_DESCRIPTOR_SET,
 };
 use napoli_server_migrations::{Migrator, MigratorTrait};
 use napoli_server_persistent_entities::order_entry;
@@ -22,7 +22,10 @@ const DATABASE_FILE_NAME: &str = "napoli.sqlite";
 //     Status::internal(err.to_string())
 // }
 
-fn map_err_to_status<T>(err: T) -> Status where T: Display {
+fn map_err_to_status<T>(err: T) -> Status
+where
+    T: Display,
+{
     Status::internal(err.to_string())
 }
 
@@ -45,19 +48,27 @@ impl OrderService for NapoliServer {
 
         // Convert to our protobuf type
         match orders {
-            Ok(orders) => Ok(Response::new(GetOrdersReply {
-                orders: futures::future::join_all(orders.into_iter().map(|order| async {
+            Ok(orders) => {
+                let order_futures = orders.into_iter().map(|order| async {
                     let order_entries = order
                         .find_related(order_entry::Entity)
                         .all(&self.db_handle)
-                        .await
-                        .unwrap();
-                    model_adapters::make_single_order_reply(order, order_entries)
-                        .order
-                        .unwrap()
+                        .await?;
+                    let res: Result<_, napoli_server_migrations::DbErr> = Ok(
+                        model_adapters::make_single_order_reply(order, order_entries)
+                            .order
+                            .unwrap(),
+                    );
+                    res
+                });
+
+                let orders = futures::future::join_all(order_futures).await;
+                let orders: Result<Vec<_>, _> = orders.into_iter().collect();
+
+                Ok(Response::new(GetOrdersReply {
+                    orders: orders.map_err(map_err_to_status)?,
                 }))
-                .await,
-            })),
+            }
             Err(error) => {
                 let error_msg = format!("Error getting orders: {:?}", error);
                 println!("{}", error_msg);
@@ -153,8 +164,6 @@ impl OrderService for NapoliServer {
     ) -> Result<Response<SingleOrderReply>, Status> {
         todo!()
     }
-
-    
 }
 
 fn grpc_check_err<T>(res: anyhow::Result<T>) -> std::result::Result<T, Status> {
