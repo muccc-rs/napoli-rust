@@ -8,17 +8,27 @@ use napoli_server_migrations::{Migrator, MigratorTrait};
 
 use crate::server::NapoliServer;
 
-const DATABASE_FILE_NAME: &str = "napoli.sqlite";
+use clap::Parser;
+
+#[derive(Parser, Default, Debug)]
+struct Arguments {
+    #[clap(short, long, default_value = "[::1]:50051")]
+    bind_addr: String,
+    #[clap(short, long, default_value = "napoli.sqlite")]
+    sqlite_file_name: String,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    assert_db_file_exists(DATABASE_FILE_NAME)?;
-    let conn = format!("sqlite://{}", DATABASE_FILE_NAME);
+    let args = Arguments::parse();
+
+    assert_db_file_exists(&args.sqlite_file_name)?;
+    let conn = format!("sqlite://{}", &args.sqlite_file_name);
     let db = sea_orm::Database::connect(conn).await?;
 
     Migrator::up(&db, None).await?;
 
-    let addr = match "[::1]:50051".parse() {
+    let addr = match args.bind_addr.parse() {
         Ok(addr) => addr,
         Err(e) => {
             println!("Failed to parse address: {}", e);
