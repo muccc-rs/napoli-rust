@@ -1,6 +1,6 @@
 use anyhow::Result;
 use napoli_lib::napoli::{CreateOrderRequest, SingleOrderReply};
-use sea_orm::{Set};
+use sea_orm::{ModelTrait, Set};
 
 pub fn get_order_from_create_request(
     request: CreateOrderRequest,
@@ -14,11 +14,11 @@ pub fn get_order_from_create_request(
     })
 }
 
-pub fn get_single_order_reply(
+pub fn make_single_order_reply(
     order: napoli_server_persistent_entities::order::Model,
     order_entries: Vec<napoli_server_persistent_entities::order_entry::Model>,
-) -> Result<SingleOrderReply> {
-    Ok(SingleOrderReply {
+) -> SingleOrderReply {
+    SingleOrderReply {
         order: Some(napoli_lib::napoli::Order {
             id: order.id,
             menu_url: order.menu_url,
@@ -33,5 +33,5 @@ pub fn get_single_order_reply(
                 })
                 .collect(),
         }),
-    })
+    }
 }

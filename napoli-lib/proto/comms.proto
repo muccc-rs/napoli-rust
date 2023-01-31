@@ -10,6 +10,10 @@ message GetOrdersReply {
     repeated Order orders = 1;
 }
 
+message GetOrderRequest {
+    uint32 order_id = 1;
+}
+
 message CreateOrderRequest {
     string menu_url = 1;
 }
@@ -22,11 +26,33 @@ message AddOrderEntryRequest {
     string food = 2;
     string buyer = 3;
 }
+
+message OrderEntryRequest {
+    uint32 order_id = 1;
+    uint32 entry_id = 2;
+}
+
+message UpdateOrderStateRequest {
+    uint32 order_id = 1;
+    OrderState state = 2;
+}
+
+message SetOrderEntryPaidRequest {
+    uint32 order_id = 1;
+    uint32 entry_id = 2;
+    bool paid = 3;
+}
+
 // Define a service to return a sample order
 service OrderService {
     rpc GetOrders (GetOrdersRequest) returns (GetOrdersReply);
+    // rpc GetOpenOrders (GetOrdersRequest) returns (GetOrdersReply);
     rpc CreateOrder (CreateOrderRequest) returns (SingleOrderReply);
+    // rpc GetOrder (GetOrderRequest) returns (SingleOrderReply);
+    // rpc UpdateOrderState (UpdateOrderStateRequest) returns (SingleOrderReply);
 
     // Manage OrderEntries
     rpc AddOrderEntry (AddOrderEntryRequest) returns (SingleOrderReply);
+    rpc RemoveOrderEntry (OrderEntryRequest) returns (SingleOrderReply);
+    rpc SetOrderEntryPaid (SetOrderEntryPaidRequest) returns (SingleOrderReply);
 }

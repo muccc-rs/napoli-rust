@@ -1,16 +1,30 @@
 mod model_adapters;
+use std::fmt::Display;
+
 use napoli_lib::napoli::order_service_server::{OrderService, OrderServiceServer};
 use napoli_lib::napoli::{
-    AddOrderEntryRequest, CreateOrderRequest, GetOrdersReply, GetOrdersRequest, SingleOrderReply,
-    FILE_DESCRIPTOR_SET,
+    AddOrderEntryRequest, CreateOrderRequest, GetOrdersReply, GetOrdersRequest, OrderEntryRequest,
+    SingleOrderReply, FILE_DESCRIPTOR_SET, SetOrderEntryPaidRequest,
 };
 use napoli_server_migrations::{Migrator, MigratorTrait};
 use napoli_server_persistent_entities::order_entry;
 use sea_orm::{ActiveModelTrait, ModelTrait, Set};
 use sea_orm::{Database, DatabaseConnection, EntityTrait};
-use tonic::{transport::Server, Response, Status};
+use tonic::{transport::Server, Request, Response, Status};
 
 const DATABASE_FILE_NAME: &str = "napoli.sqlite";
+
+// fn map_err_to_status(err: anyhow::Error) -> Status {
+//     Status::internal(err.to_string())
+// }
+
+// fn map_err_to_status(err: sea_orm::DbErr) -> Status {
+//     Status::internal(err.to_string())
+// }
+
+fn map_err_to_status<T>(err: T) -> Status where T: Display {
+    Status::internal(err.to_string())
+}
 
 pub struct NapoliServer {
     db_handle: DatabaseConnection,
@@ -20,7 +34,7 @@ pub struct NapoliServer {
 impl OrderService for NapoliServer {
     async fn get_orders(
         &self,
-        request: tonic::Request<GetOrdersRequest>,
+        request: Request<GetOrdersRequest>,
     ) -> Result<Response<GetOrdersReply>, Status> {
         println!("Got a request: {:?}", request);
 
@@ -32,15 +46,17 @@ impl OrderService for NapoliServer {
         // Convert to our protobuf type
         match orders {
             Ok(orders) => Ok(Response::new(GetOrdersReply {
-                orders: orders
-                    .into_iter()
-                    .map(|po| napoli_lib::napoli::Order {
-                        id: po.id,
-                        menu_url: po.menu_url,
-                        state: po.order_state,
-                        entries: vec![],
-                    })
-                    .collect(),
+                orders: futures::future::join_all(orders.into_iter().map(|order| async {
+                    let order_entries = order
+                        .find_related(order_entry::Entity)
+                        .all(&self.db_handle)
+                        .await
+                        .unwrap();
+                    model_adapters::make_single_order_reply(order, order_entries)
+                        .order
+                        .unwrap()
+                }))
+                .await,
             })),
             Err(error) => {
                 let error_msg = format!("Error getting orders: {:?}", error);
@@ -69,8 +85,7 @@ impl OrderService for NapoliServer {
             .all(&self.db_handle)
             .await
             .map_err(|err| Status::internal(err.to_string()))?;
-        let ok_order =
-            grpc_check_err(model_adapters::get_single_order_reply(order, order_entries))?;
+        let ok_order = model_adapters::make_single_order_reply(order, order_entries);
         Ok(Response::new(ok_order))
     }
 
@@ -119,12 +134,27 @@ impl OrderService for NapoliServer {
                     .all(&self.db_handle)
                     .await
                     .map_err(|err| Status::internal(err.to_string()))?;
-                let order =
-                    grpc_check_err(model_adapters::get_single_order_reply(order, order_entries))?;
+                let order = model_adapters::make_single_order_reply(order, order_entries);
                 Ok(Response::new(order))
             }
         }
     }
+
+    async fn remove_order_entry(
+        &self,
+        request: Request<OrderEntryRequest>,
+    ) -> Result<Response<SingleOrderReply>, Status> {
+        todo!()
+    }
+
+    async fn set_order_entry_paid(
+        &self,
+        request: Request<SetOrderEntryPaidRequest>,
+    ) -> Result<Response<SingleOrderReply>, Status> {
+        todo!()
+    }
+
+    
 }
 
 fn grpc_check_err<T>(res: anyhow::Result<T>) -> std::result::Result<T, Status> {
