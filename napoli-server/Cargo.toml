@@ -16,13 +16,6 @@ napoli-server-migrations = { path = "../napoli-server-migrations" }
 napoli-server-persistent-entities = { path = "../napoli-server-persistent-entities" }
 anyhow = "1.0.68"
 
-
-
-# server binary
-[[bin]]
-    name = "server"
-    path = "src/server.rs"
-
 # client binary
 [[bin]]
     name = "client"

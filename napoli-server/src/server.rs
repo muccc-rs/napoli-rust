@@ -1,35 +1,18 @@
-mod model_adapters;
-use std::fmt::Display;
-
-use napoli_lib::napoli::order_service_server::{OrderService, OrderServiceServer};
+use napoli_lib::napoli::order_service_server::OrderService;
 use napoli_lib::napoli::{
     AddOrderEntryRequest, CreateOrderRequest, GetOrdersReply, GetOrdersRequest, OrderEntryRequest,
-    SetOrderEntryPaidRequest, SingleOrderReply, FILE_DESCRIPTOR_SET,
+    SetOrderEntryPaidRequest, SingleOrderReply,
 };
-use napoli_server_migrations::{Migrator, MigratorTrait};
+
 use napoli_server_persistent_entities::order;
 use napoli_server_persistent_entities::order_entry;
 use sea_orm::QueryOrder as _;
 use sea_orm::{ActiveModelTrait, ModelTrait, Set};
-use sea_orm::{Database, DatabaseConnection, EntityTrait};
-use tonic::{transport::Server, Request, Response, Status};
+use sea_orm::{DatabaseConnection, EntityTrait};
+use tonic::{Request, Response, Status};
 
-const DATABASE_FILE_NAME: &str = "napoli.sqlite";
-
-// fn map_err_to_status(err: anyhow::Error) -> Status {
-//     Status::internal(err.to_string())
-// }
-
-// fn map_err_to_status(err: sea_orm::DbErr) -> Status {
-//     Status::internal(err.to_string())
-// }
-
-fn map_err_to_status<T>(err: T) -> Status
-where
-    T: Display,
-{
-    Status::internal(err.to_string())
-}
+use crate::errors::map_to_status;
+use crate::model_adapters;
 
 pub struct NapoliServer {
     db_handle: DatabaseConnection,
@@ -48,7 +31,7 @@ impl OrderService for NapoliServer {
             .find_with_related(order_entry::Entity)
             .all(&self.db_handle)
             .await
-            .map_err(map_err_to_status)?;
+            .map_err(map_to_status)?;
 
         let orders = orders
             .into_iter()
@@ -147,55 +130,8 @@ impl OrderService for NapoliServer {
     }
 }
 
-fn grpc_check_err<T>(res: anyhow::Result<T>) -> std::result::Result<T, Status> {
-    match res {
-        Ok(t) => Ok(t),
-        Err(e) => Err(Status::internal(e.to_string())),
-    }
-}
-
 impl NapoliServer {
     pub fn with_connection(db_handle: DatabaseConnection) -> Self {
         NapoliServer { db_handle }
     }
-}
-
-fn assert_file_exists(file_name: &str) -> Result<(), Box<dyn std::error::Error>> {
-    if std::path::Path::new(file_name).exists() {
-        println!("Database file already exists; skipping creating");
-    } else {
-        println!(
-            "Database file does not exists; creating {}",
-            DATABASE_FILE_NAME
-        );
-        std::fs::File::create(file_name)?;
-    }
-    Ok(())
-}
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    assert_file_exists(DATABASE_FILE_NAME)?;
-    let conn = format!("sqlite://{}", DATABASE_FILE_NAME);
-    let db = Database::connect(conn).await?;
-
-    Migrator::up(&db, None).await?;
-
-    let addr = "[::1]:50051".parse().unwrap();
-    let greeter = NapoliServer::with_connection(db);
-
-    println!("NapoliServer listening on {}", addr);
-
-    let reflection = tonic_reflection::server::Builder::configure()
-        .register_encoded_file_descriptor_set(FILE_DESCRIPTOR_SET)
-        .build()
-        .unwrap();
-
-    Server::builder()
-        .add_service(OrderServiceServer::new(greeter))
-        .add_service(reflection)
-        .serve(addr)
-        .await?;
-
-    Ok(())
 }
