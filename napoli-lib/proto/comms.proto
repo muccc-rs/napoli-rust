@@ -30,7 +30,7 @@ message AddOrderEntryRequest {
 
 message OrderEntryRequest {
     uint32 order_id = 1;
-    uint32 entry_id = 2;
+    uint32 order_entry_id = 2;
 }
 
 message UpdateOrderStateRequest {
@@ -40,17 +40,16 @@ message UpdateOrderStateRequest {
 
 message SetOrderEntryPaidRequest {
     uint32 order_id = 1;
-    uint32 entry_id = 2;
+    uint32 order_entry_id = 2;
     bool paid = 3;
 }
 
 // Define a service to return a sample order
 service OrderService {
     rpc GetOrders (GetOrdersRequest) returns (GetOrdersReply);
-    // rpc GetOpenOrders (GetOrdersRequest) returns (GetOrdersReply);
     rpc CreateOrder (CreateOrderRequest) returns (SingleOrderReply);
-    // rpc GetOrder (GetOrderRequest) returns (SingleOrderReply);
-    // rpc UpdateOrderState (UpdateOrderStateRequest) returns (SingleOrderReply);
+    rpc GetOrder (GetOrderRequest) returns (SingleOrderReply);
+    rpc UpdateOrderState (UpdateOrderStateRequest) returns (SingleOrderReply);
 
     // Manage OrderEntries
     rpc AddOrderEntry (AddOrderEntryRequest) returns (SingleOrderReply);
