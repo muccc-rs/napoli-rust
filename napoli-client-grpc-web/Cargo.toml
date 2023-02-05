@@ -1,0 +1,14 @@
+[package]
+name = "napoli-client-grpc-web"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bytes = "1.4.0"
+http = "0.2.8"
+hyper = "0.14.24"
+tokio = { version = "1.24.2", features = ["full"] }
+napoli-lib = { path = "../napoli-lib" }
+prost = "0.11.6"

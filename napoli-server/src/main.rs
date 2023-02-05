@@ -5,6 +5,7 @@ mod server;
 use napoli_lib::napoli::order_service_server::OrderServiceServer;
 use napoli_lib::napoli::FILE_DESCRIPTOR_SET;
 use napoli_server_migrations::{Migrator, MigratorTrait};
+use tonic_web::GrpcWebLayer;
 
 use crate::server::NapoliServer;
 
@@ -38,13 +39,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("NapoliServer listening on {}", addr);
     let napoli_server = NapoliServer::with_connection(db);
+    let order_service_server = OrderServiceServer::new(napoli_server);
     let reflection = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(FILE_DESCRIPTOR_SET)
         .build()
         .unwrap();
 
     tonic::transport::Server::builder()
-        .add_service(OrderServiceServer::new(napoli_server))
+        .accept_http1(true)
+        .layer(GrpcWebLayer::new())
+        .add_service(order_service_server)
         .add_service(reflection)
         .serve(addr)
         .await?;

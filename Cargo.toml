@@ -5,4 +5,5 @@ members = [
     "napoli-server",
     "napoli-server-migrations",
     "napoli-server-persistent-entities",
+    "napoli-client-grpc-web"
 ]

@@ -16,6 +16,7 @@ napoli-server-migrations = { path = "../napoli-server-migrations" }
 napoli-server-persistent-entities = { path = "../napoli-server-persistent-entities" }
 anyhow = "1.0.68"
 clap = { version = "4.1.4", features = ["derive"] }
+tonic-web = "0.5.0"
 
 # client binary
 [[bin]]
