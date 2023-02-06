@@ -1301,7 +1301,6 @@ name = "napoli-server-migrations"
 version = "0.1.0"
 dependencies = [
  "async-std",
- "napoli-server-persistent-entities",
  "sea-orm-migration",
 ]
 

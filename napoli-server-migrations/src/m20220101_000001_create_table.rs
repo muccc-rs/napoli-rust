@@ -1,30 +1,80 @@
-use sea_orm_migration::{prelude::*, sea_orm::Schema};
+use sea_orm_migration::prelude::*;
 #[derive(DeriveMigrationName)]
 pub struct Migration;
+
+#[derive(Iden)]
+enum Order {
+    Table,
+    Id,
+    MenuUrl,
+    OrderState,
+}
+
+#[derive(Iden)]
+enum OrderEntry {
+    Table,
+    Id,
+    OrderId,
+    Buyer,
+    Food,
+    Paid,
+}
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // Replace the sample below with your own migration scripts
-
-        // Setup Schema helper
-        let schema = Schema::new(manager.get_database_backend());
-
-        // Derive from Entity
-        // Execute create table statement
         manager
             .create_table(
-                schema.create_table_from_entity(napoli_server_persistent_entities::order::Entity),
+                Table::create()
+                    .table(Order::Table)
+                    .col(
+                        ColumnDef::new(Order::Id)
+                            .unsigned()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(Order::MenuUrl).text().not_null())
+                    .col(
+                        ColumnDef::new(Order::OrderState)
+                            .integer()
+                            .not_null()
+                            .default(1),
+                    )
+                    .to_owned(),
             )
             .await?;
 
         manager
             .create_table(
-                schema.create_table_from_entity(
-                    napoli_server_persistent_entities::order_entry::Entity,
-                ),
+                Table::create()
+                    .table(OrderEntry::Table)
+                    .col(
+                        ColumnDef::new(OrderEntry::Id)
+                            .unsigned()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(OrderEntry::OrderId).unsigned().not_null())
+                    .col(ColumnDef::new(OrderEntry::Buyer).text().not_null())
+                    .col(ColumnDef::new(OrderEntry::Food).text().not_null())
+                    .col(
+                        ColumnDef::new(OrderEntry::Paid)
+                            .boolean()
+                            .not_null()
+                            .default(false),
+                    )
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(OrderEntry::Table, OrderEntry::OrderId)
+                            .to(Order::Table, Order::Id)
+                            .name("fk_order_entry_order_id"),
+                    )
+                    .to_owned(),
             )
             .await?;
+
         Ok(())
     }
 
@@ -37,14 +87,4 @@ impl MigrationTrait for Migration {
             .drop_table(Table::drop().table(OrderEntry::Table).to_owned())
             .await
     }
-}
-
-#[derive(Iden)]
-enum Order {
-    Table,
-}
-
-#[derive(Iden)]
-enum OrderEntry {
-    Table,
 }
