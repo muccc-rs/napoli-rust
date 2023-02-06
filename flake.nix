@@ -27,7 +27,7 @@
         dev-toolchain = toolchain.override {
           extensions = [ "rust-src" "rls" "rustfmt" ];
         };
-        
+
         naersk' = pkgs.callPackage naersk {
           cargo = toolchain;
           rustc = toolchain;
@@ -37,7 +37,7 @@
         defaultPackage = naersk'.buildPackage {
           src = ./.;
         };
-        
+
         devShell = pkgs.mkShell rec {
           name = "napoli-rust";
 

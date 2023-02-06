@@ -17,10 +17,12 @@ impl MigrationTrait for Migration {
                 schema.create_table_from_entity(napoli_server_persistent_entities::order::Entity),
             )
             .await?;
-        
+
         manager
             .create_table(
-                schema.create_table_from_entity(napoli_server_persistent_entities::order_entry::Entity),
+                schema.create_table_from_entity(
+                    napoli_server_persistent_entities::order_entry::Entity,
+                ),
             )
             .await?;
         Ok(())

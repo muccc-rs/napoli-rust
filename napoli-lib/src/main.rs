@@ -1,11 +1,10 @@
-
 use napoli_lib::create_example_order;
 use prost::Message;
 
 pub fn main() {
     let order = create_example_order();
     println!("order: {:?}", order);
-    
+
     // Serialize the order to a buffer
     let mut buf = vec![0; order.encoded_len()];
     order.encode(&mut buf).unwrap();

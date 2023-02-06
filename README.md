@@ -1,6 +1,6 @@
 # Requirements Engineering Process (2022-11-28 Pizza Order)
 * Rob: Bufala (10.50)
-* Hauke: Bufala (10.50) 
+* Hauke: Bufala (10.50)
 * Max: Don Ciro (12.50)
 * Felix: Bufala (10.50)
 

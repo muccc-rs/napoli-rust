@@ -18,11 +18,10 @@ pub fn create_example_order() -> napoli::Order {
         food: "pizza".to_string(),
         price: 10.0,
         paid: false,
-
     };
     order.entries.push(entry);
 
-    let entry = napoli::OrderEntry{
+    let entry = napoli::OrderEntry {
         id: 2,
         buyer: "Jane".to_string(),
         food: "pizza".to_string(),

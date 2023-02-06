@@ -56,10 +56,7 @@ fn assert_db_file_exists(file_name: &str) -> Result<(), Box<dyn std::error::Erro
     if std::path::Path::new(file_name).exists() {
         println!("Database file already exists; skipping creating");
     } else {
-        println!(
-            "Database file does not exists; creating {}",
-            file_name
-        );
+        println!("Database file does not exists; creating {}", file_name);
         std::fs::File::create(file_name)?;
     }
     Ok(())
