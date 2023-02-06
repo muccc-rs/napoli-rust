@@ -25,6 +25,7 @@ message AddOrderEntryRequest {
     uint32 order_id = 1;
     string food = 2;
     string buyer = 3;
+    double price = 4;
 }
 
 message OrderEntryRequest {

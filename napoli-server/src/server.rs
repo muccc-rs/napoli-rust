@@ -6,13 +6,13 @@ use napoli_lib::napoli::{
 
 use napoli_server_persistent_entities::order;
 use napoli_server_persistent_entities::order_entry;
-use sea_orm::QueryOrder as _;
-use sea_orm::{ActiveModelTrait, ModelTrait, Set};
+use sea_orm::{ActiveModelTrait, ModelTrait};
 use sea_orm::{DatabaseConnection, EntityTrait};
+use sea_orm::{IntoActiveModel, QueryOrder as _};
 use tonic::{Request, Response, Status};
 
 use crate::errors::map_to_status;
-use crate::model_adapters;
+use crate::model_adapters::{self, get_order_entry_from_add_request};
 
 pub struct NapoliServer {
     db_handle: DatabaseConnection,
@@ -35,7 +35,9 @@ impl OrderService for NapoliServer {
 
         let orders = orders
             .into_iter()
-            .map(|(order, entries)| model_adapters::max_told_me_so(order, entries.into_iter()))
+            .map(|(order, entries)| {
+                model_adapters::database_order_to_tonic_order(order, entries.into_iter())
+            })
             .collect();
 
         Ok(Response::new(GetOrdersReply { orders }))
@@ -70,13 +72,15 @@ impl OrderService for NapoliServer {
     ) -> Result<Response<SingleOrderReply>, Status> {
         let request = request.into_inner();
 
-        let order = napoli_server_persistent_entities::order::Entity::find_by_id(request.order_id)
-            .one(&self.db_handle)
-            .await
-            .map_err(|err| Status::internal(err.to_string()))?;
+        let order = napoli_server_persistent_entities::order::Entity::find_by_id(
+            request.order_id.to_owned(),
+        )
+        .one(&self.db_handle)
+        .await
+        .map_err(|err| Status::internal(err.to_string()))?;
         match order {
             Some(order) => {
-                if order.order_state != napoli_lib::napoli::OrderState::Open as i32 {
+                if order.state != napoli_lib::napoli::OrderState::Open as i32 {
                     return Err(Status::invalid_argument("Order is not open"));
                 }
             }
@@ -84,13 +88,12 @@ impl OrderService for NapoliServer {
         }
 
         // Add order entry
-        let order_entry = order_entry::ActiveModel {
-            order_id: Set(request.order_id),
-            buyer: Set(request.buyer),
-            food: Set(request.food),
-            paid: Set(false),
-            ..Default::default()
+        let order_entry = get_order_entry_from_add_request(request.to_owned());
+        let order_entry = match order_entry {
+            Some(order_entry) => order_entry,
+            None => return Err(Status::internal("Order entry parse error")),
         };
+
         order_entry
             .insert(&self.db_handle)
             .await

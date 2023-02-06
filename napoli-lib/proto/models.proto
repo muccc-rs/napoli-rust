@@ -7,7 +7,8 @@ message OrderEntry {
     uint32 id = 1; // the slug name / id of this order entry
     string food = 2;
     string buyer = 3;
-    bool paid = 4;
+    double price = 4;
+    bool paid = 5;
 }
 
 enum OrderState {

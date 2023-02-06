@@ -8,7 +8,7 @@ pub struct Model {
     pub order_id: u32,
     pub buyer: String,
     pub food: String,
-    // pub price: i32,
+    pub price: f64,
     pub paid: bool,
 }
 

@@ -7,7 +7,7 @@ pub struct Model {
     pub id: u32,
     pub menu_url: String,
     #[sea_orm(default_value="1")]
-    pub order_state: i32,
+    pub state: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter)]

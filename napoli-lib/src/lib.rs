@@ -5,21 +5,31 @@ pub mod napoli {
 }
 
 pub fn create_example_order() -> napoli::Order {
-    let mut order = napoli::Order::default();
-    order.id = 1;
-    order.menu_url = "https://www.napoli-pizza.com/menu".to_string();
-    order.state = napoli::OrderState::Open.into();
+    let mut order = napoli::Order {
+        id: 1,
+        menu_url: "https://www.napoli-pizza.com/menu".to_string(),
+        state: napoli::OrderState::Open.into(),
+        ..Default::default()
+    };
 
-    let mut entry = napoli::OrderEntry::default();
-    entry.id = 1;
-    entry.food = "pizza".to_string();
-    entry.buyer = "John".to_string();
+    let entry = napoli::OrderEntry {
+        id: 1,
+        buyer: "John".to_string(),
+        food: "pizza".to_string(),
+        price: 10.0,
+        paid: false,
+
+    };
     order.entries.push(entry);
 
-    let mut entry = napoli::OrderEntry::default();
-    entry.id = 2;
-    entry.food = "pizza".to_string();
-    entry.buyer = "Jane".to_string();
+    let entry = napoli::OrderEntry{
+        id: 2,
+        buyer: "Jane".to_string(),
+        food: "pizza".to_string(),
+        price: 10.0,
+        paid: false,
+    };
+
     order.entries.push(entry);
 
     order
