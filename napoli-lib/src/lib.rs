@@ -2,6 +2,9 @@ pub mod napoli {
     tonic::include_proto!("napoli");
 
     pub const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("napoli_descriptor");
+
+    impl Eq for Order {
+    }
 }
 
 pub fn create_example_order() -> napoli::Order {

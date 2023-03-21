@@ -1,9 +1,78 @@
 use yew::prelude::*;
 use crate::service;
+use napoli_lib::napoli as npb;
+
+pub enum Msg {
+    GotOrders(Vec<npb::Order>),
+    OrderFetchFailed(service::ServiceError),
+}
+
+pub enum FetchOrdersState {
+    Fetching,
+    Got(Vec<npb::Order>),
+    Failed(service::ServiceError),
+}
+
+pub struct Page {
+    orders: FetchOrdersState,
+}
+
+impl Component for Page {
+    type Message = Msg;
+    type Properties = ();
+
+    fn create(ctx: &Context<Self>) -> Self {
+        let svc = service::Napoli {
+            base_url: "http://[::1]:50052".into(),
+        };
+        ctx.link().send_future(async move {
+            match svc.get_orders().await {
+                Ok(orders) => Msg::GotOrders(orders),
+                Err(e) => Msg::OrderFetchFailed(e),
+            }
+        });
+        Self {
+            orders: FetchOrdersState::Fetching,
+        }
+    }
+
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            Msg::GotOrders(o) => {
+                self.orders = FetchOrdersState::Got(o);
+                true
+            },
+            Msg::OrderFetchFailed(e) => {
+                self.orders = FetchOrdersState::Failed(e);
+                true
+            },
+        }
+    }
+
+    fn view(&self, _ctx: &Context<Self>) -> Html {
+        match &self.orders {
+            FetchOrdersState::Fetching => html! {
+                { "hold on to your butts" }
+            },
+            FetchOrdersState::Failed(e) => html! {
+                <>
+                    <h1>{ "oh shit oh fuck" }</h1>
+                    { e.html() }
+                </>
+            },
+            FetchOrdersState::Got(orders) => {
+                let orders = orders.clone();
+                html! {
+                    <OrderList {orders} />
+                }
+            }
+        }
+    }
+}
 
 #[derive(PartialEq, Eq, Properties)]
 pub struct OrderListEntryProps {
-    pub order: service::Order,
+    pub order: npb::Order,
 }
 
 pub struct OrderListEntry {
@@ -24,7 +93,7 @@ impl Component for OrderListEntry {
                 { "Order number " }
                 { o.id }
                 { ", menu: " }
-                <a href={ o.menu_url }>{ o.menu_url }</a>
+                <a href={ o.menu_url.clone() }>{ o.menu_url.clone() }</a>
             </li>
         }
     }
@@ -32,7 +101,7 @@ impl Component for OrderListEntry {
 
 #[derive(PartialEq, Eq, Properties)]
 pub struct OrderListProps {
-    pub orders: Vec<service::Order>,
+    pub orders: Vec<npb::Order>,
 }
 
 pub struct OrderList {

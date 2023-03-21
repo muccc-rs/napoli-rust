@@ -12,3 +12,9 @@ gloo = "0"
 js-sys = "0"
 yew = { version = "0", features = ["csr"] }
 wasm-bindgen = "0"
+napoli-lib = { path = "../napoli-lib" }
+getrandom = { version = "0", features = ["js"] }
+bytes = "0"
+prost = "0"
+tonic-web-wasm-client = "0"
+tonic = { version = "0.8.3", default-features = false, features = ["codegen", "prost"] }
