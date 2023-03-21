@@ -6,6 +6,7 @@ use napoli_lib::napoli::order_service_server::OrderServiceServer;
 use napoli_lib::napoli::FILE_DESCRIPTOR_SET;
 use napoli_server_migrations::{Migrator, MigratorTrait};
 use tonic_web::GrpcWebLayer;
+use tower_http::cors;
 
 use crate::server::NapoliServer;
 
@@ -45,8 +46,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build()
         .unwrap();
 
+    let cors = cors::CorsLayer::new()
+        .allow_headers(cors::Any)
+        .allow_methods([http::Method::POST])
+        .allow_origin(cors::Any);
+
     tonic::transport::Server::builder()
         .accept_http1(true)
+        .layer(cors)
         .layer(GrpcWebLayer::new())
         .add_service(order_service_server)
         .add_service(reflection)

@@ -1286,6 +1286,7 @@ dependencies = [
  "anyhow",
  "clap 4.1.4",
  "futures",
+ "http",
  "napoli-lib",
  "napoli-server-migrations",
  "napoli-server-persistent-entities",
@@ -1294,6 +1295,7 @@ dependencies = [
  "tonic",
  "tonic-reflection",
  "tonic-web",
+ "tower-http",
 ]
 
 [[package]]

@@ -17,6 +17,8 @@ napoli-server-persistent-entities = { path = "../napoli-server-persistent-entiti
 anyhow = "1.0.68"
 clap = { version = "4.1.4", features = ["derive"] }
 tonic-web = "0.5.0"
+tower-http = "0"
+http = "0"
 
 # client binary
 [[bin]]
