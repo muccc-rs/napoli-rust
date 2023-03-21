@@ -23,7 +23,7 @@ impl Component for Page {
 
     fn create(ctx: &Context<Self>) -> Self {
         let svc = service::Napoli {
-            base_url: "http://[::1]:50052".into(),
+            base_url: "http://[::1]:50051".into(),
         };
         ctx.link().send_future(async move {
             match svc.get_orders().await {
