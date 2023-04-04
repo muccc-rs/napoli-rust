@@ -17,13 +17,18 @@ pub struct Page {
     orders: FetchOrdersState,
 }
 
+#[derive(Properties, Clone, PartialEq, Default)]
+pub struct AppConfigProps {
+    pub base_url: String,
+}
+
 impl Component for Page {
     type Message = Msg;
-    type Properties = ();
+    type Properties = AppConfigProps;
 
     fn create(ctx: &Context<Self>) -> Self {
         let svc = service::Napoli {
-            base_url: "http://[::1]:50051".into(),
+            base_url: ctx.props().base_url.clone(),
         };
         ctx.link().send_future(async move {
             match svc.get_orders().await {
