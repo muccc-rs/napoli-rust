@@ -119,15 +119,16 @@ impl Component for OrderListEntry {
     fn view(&self, ctx: &Context<Self>) -> Html {
         let o = &ctx.props().order;
         let order_url = format!("/order/{}",o.id);
+        let left_style = "padding-right: 1em; text-align: right;";
+        let tr_style = "";
+        let table_style = "padding-bottom: 1em;";
         html! {
-            <li>
-                { "Order number " }
-                { o.id }
-                { ", menu: " }
-                <a href={ o.menu_url.clone() }>{ o.menu_url.clone() }</a>
-                <a href={ order_url.clone() }>{ order_url }</a>
-
-            </li>
+            <table style={table_style}>
+            <tr style={tr_style}><td style={left_style}>{"Order Details"}</td><td><a href={ order_url.clone() }>{ order_url }</a></td></tr>
+            <tr style={tr_style}><td style={left_style}>{"Order Number"}</td><td>{o.id}</td></tr>
+            <tr style={tr_style}><td style={left_style}>{"Menu URL"}</td><td><a href={ o.menu_url.clone() }>{ o.menu_url.clone() }</a>
+</td></tr>
+            </table>
         }
     }
 }
