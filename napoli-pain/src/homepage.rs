@@ -1,6 +1,6 @@
-use yew::prelude::*;
 use crate::service;
 use napoli_lib::napoli as npb;
+use yew::prelude::*;
 
 pub enum Msg {
     GotOrders(Vec<npb::Order>),
@@ -41,11 +41,11 @@ impl Component for Page {
             Msg::GotOrders(o) => {
                 self.orders = FetchOrdersState::Got(o);
                 true
-            },
+            }
             Msg::OrderFetchFailed(e) => {
                 self.orders = FetchOrdersState::Failed(e);
                 true
-            },
+            }
         }
     }
 
@@ -75,8 +75,7 @@ pub struct OrderListEntryProps {
     pub order: npb::Order,
 }
 
-pub struct OrderListEntry {
-}
+pub struct OrderListEntry {}
 
 impl Component for OrderListEntry {
     type Message = ();
@@ -104,8 +103,7 @@ pub struct OrderListProps {
     pub orders: Vec<npb::Order>,
 }
 
-pub struct OrderList {
-}
+pub struct OrderList {}
 
 impl Component for OrderList {
     type Message = ();
@@ -116,11 +114,17 @@ impl Component for OrderList {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let orders = ctx.props().orders.iter().cloned().map(|order| {
-            html! {
-                <OrderListEntry {order} />
-            }
-        }).collect::<Vec<_>>();
+        let orders = ctx
+            .props()
+            .orders
+            .iter()
+            .cloned()
+            .map(|order| {
+                html! {
+                    <OrderListEntry {order} />
+                }
+            })
+            .collect::<Vec<_>>();
         html! {
             <ul>
             { orders }

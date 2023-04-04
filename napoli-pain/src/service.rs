@@ -30,7 +30,7 @@ pub struct Napoli {
 impl Napoli {
     pub async fn get_orders(&self) -> Result<Vec<npb::Order>> {
         let mut ocl = npb_grpc::OrderServiceClient::new(Client::new(self.base_url.clone()));
-        let orders = ocl.get_orders(npb::GetOrdersRequest{}).await?;
+        let orders = ocl.get_orders(npb::GetOrdersRequest {}).await?;
         Ok(orders.into_inner().orders)
     }
 }
