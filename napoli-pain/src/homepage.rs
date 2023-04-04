@@ -1,16 +1,15 @@
+use crate::orderlistitem::*;
 use crate::service;
+use crate::BASE_URL;
 use napoli_lib::napoli as npb;
 use yew::prelude::*;
 use yew_router::prelude::*;
-use crate::BASE_URL;
-use crate::orderlistitem::*;
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
     #[at("/")]
     Home,
     #[at("/order/:id")]
-    OrderListEntry
-    { id: String },
+    OrderListEntry { id: u32 },
 }
 pub enum Msg {
     GotOrders(Vec<npb::Order>),
@@ -28,9 +27,11 @@ fn switch(routes: Route) -> Html {
 #[function_component(Main)]
 pub fn app() -> Html {
     html! {
-        <BrowserRouter>
-            <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>
-        </BrowserRouter>
+        <div style="font-family: monospace">
+            <BrowserRouter>
+                <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>
+            </BrowserRouter>
+        </div>
     }
 }
 pub enum FetchOrdersState {
@@ -118,7 +119,7 @@ impl Component for OrderListEntry {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         let o = &ctx.props().order;
-        let order_url = format!("/order/{}",o.id);
+        let order_url = format!("/order/{}", o.id);
         let left_style = "padding-right: 1em; text-align: right;";
         let tr_style = "";
         let table_style = "padding-bottom: 1em;";
@@ -137,7 +138,6 @@ impl Component for OrderListEntry {
 pub struct OrderListProps {
     pub orders: Vec<npb::Order>,
 }
-
 
 pub struct OrderList {}
 

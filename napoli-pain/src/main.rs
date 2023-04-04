@@ -1,6 +1,6 @@
 mod homepage;
-mod service;
 mod orderlistitem;
+mod service;
 pub const BASE_URL: &str = match option_env!("BASE_URL") {
     Some(url) => url,
     None => "http://[::1]:50051",

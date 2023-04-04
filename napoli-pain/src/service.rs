@@ -33,4 +33,21 @@ impl Napoli {
         let orders = ocl.get_orders(npb::GetOrdersRequest {}).await?;
         Ok(orders.into_inner().orders)
     }
+
+    pub async fn set_order_entry_paid(
+        &self,
+        order_id: u32,
+        order_entry_id: u32,
+        paid: bool,
+    ) -> Result<npb::Order> {
+        let mut ocl = npb_grpc::OrderServiceClient::new(Client::new(self.base_url.clone()));
+        let order = ocl
+            .set_order_entry_paid(npb::SetOrderEntryPaidRequest {
+                order_id,
+                order_entry_id,
+                paid,
+            })
+            .await?;
+        Ok(order.into_inner().order.expect("fucked up"))
+    }
 }
