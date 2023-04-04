@@ -1,12 +1,38 @@
 use crate::service;
 use napoli_lib::napoli as npb;
 use yew::prelude::*;
-
+use yew_router::prelude::*;
+use crate::BASE_URL;
+use crate::orderlistitem::*;
+#[derive(Clone, Routable, PartialEq)]
+enum Route {
+    #[at("/")]
+    Home,
+    #[at("/order/:id")]
+    OrderListEntry
+    { id: String },
+}
 pub enum Msg {
     GotOrders(Vec<npb::Order>),
     OrderFetchFailed(service::ServiceError),
 }
+fn switch(routes: Route) -> Html {
+    match routes {
+        Route::Home => html! { <Page base_url={BASE_URL} /> },
+        Route::OrderListEntry { id } => html! {
+            <OrderListItem id={id} />
+        },
+    }
+}
 
+#[function_component(Main)]
+pub fn app() -> Html {
+    html! {
+        <BrowserRouter>
+            <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>
+        </BrowserRouter>
+    }
+}
 pub enum FetchOrdersState {
     Fetching,
     Got(Vec<npb::Order>),
@@ -92,12 +118,15 @@ impl Component for OrderListEntry {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         let o = &ctx.props().order;
+        let order_url = format!("/order/{}",o.id);
         html! {
             <li>
                 { "Order number " }
                 { o.id }
                 { ", menu: " }
                 <a href={ o.menu_url.clone() }>{ o.menu_url.clone() }</a>
+                <a href={ order_url.clone() }>{ order_url }</a>
+
             </li>
         }
     }
@@ -107,6 +136,7 @@ impl Component for OrderListEntry {
 pub struct OrderListProps {
     pub orders: Vec<npb::Order>,
 }
+
 
 pub struct OrderList {}
 
