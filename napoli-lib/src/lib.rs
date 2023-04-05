@@ -5,7 +5,6 @@ pub mod napoli {
 
     impl Eq for Order {}
     impl Eq for OrderEntry {}
-
 }
 
 pub fn create_example_order() -> napoli::Order {
