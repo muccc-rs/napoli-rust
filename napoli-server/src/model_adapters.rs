@@ -32,6 +32,10 @@ pub fn database_order_to_tonic_order(
     order: napoli_server_persistent_entities::order::Model,
     order_entries: impl Iterator<Item = napoli_server_persistent_entities::order_entry::Model>,
 ) -> napoli_lib::napoli::Order {
+    let mut order_entries: Vec<_> = order_entries.collect();
+    order_entries.sort_by_key(|entry| entry.id);
+    let order_entries = order_entries.into_iter();
+
     napoli_lib::napoli::Order {
         id: order.id,
         menu_url: order.menu_url,
@@ -50,8 +54,10 @@ pub fn database_order_to_tonic_order(
 
 pub fn make_single_order_reply(
     order: napoli_server_persistent_entities::order::Model,
-    order_entries: Vec<napoli_server_persistent_entities::order_entry::Model>,
+    mut order_entries: Vec<napoli_server_persistent_entities::order_entry::Model>,
 ) -> SingleOrderReply {
+    order_entries.sort_by_key(|entry| entry.id);
+
     SingleOrderReply {
         order: Some(database_order_to_tonic_order(
             order,
