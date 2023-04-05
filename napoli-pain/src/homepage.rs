@@ -125,7 +125,9 @@ impl Component for OrderListEntry {
         let table_style = "padding-bottom: 1em;";
         html! {
                     <table style={table_style}>
-                    <tr style={tr_style}><td style={left_style}>{"Order Details"}</td><td><a href={ order_url.clone() }>{ order_url }</a></td></tr>
+                    <tr style={tr_style}><td style={left_style}>{"Order Details"}</td><td>
+                        <Link<Route> to={Route::OrderListEntry { id: o.id }}>{ order_url }</Link<Route>>
+                    </td></tr>
                     <tr style={tr_style}><td style={left_style}>{"Order Number"}</td><td>{o.id}</td></tr>
                     <tr style={tr_style}><td style={left_style}>{"Menu URL"}</td><td><a href={ o.menu_url.clone() }>{ o.menu_url.clone() }</a>
         </td></tr>
