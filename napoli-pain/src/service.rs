@@ -24,12 +24,12 @@ impl From<tonic::Status> for ServiceError {
 type Result<T> = std::result::Result<T, ServiceError>;
 
 pub struct Napoli {
-    pub base_url: String,
+    pub backend_url: String,
 }
 
 impl Napoli {
     pub async fn get_orders(&self) -> Result<Vec<npb::Order>> {
-        let mut ocl = npb_grpc::OrderServiceClient::new(Client::new(self.base_url.clone()));
+        let mut ocl = npb_grpc::OrderServiceClient::new(Client::new(self.backend_url.clone()));
         let orders = ocl.get_orders(npb::GetOrdersRequest {}).await?;
         Ok(orders.into_inner().orders)
     }
@@ -40,7 +40,7 @@ impl Napoli {
         order_entry_id: u32,
         paid: bool,
     ) -> Result<npb::Order> {
-        let mut ocl = npb_grpc::OrderServiceClient::new(Client::new(self.base_url.clone()));
+        let mut ocl = npb_grpc::OrderServiceClient::new(Client::new(self.backend_url.clone()));
         let order = ocl
             .set_order_entry_paid(npb::SetOrderEntryPaidRequest {
                 order_id,

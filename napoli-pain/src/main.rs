@@ -4,7 +4,7 @@ mod orderlistitem;
 mod router;
 mod service;
 
-pub const BASE_URL: &str = match option_env!("BASE_URL") {
+pub const BACKEND_URL: &str = match option_env!("BACKEND_URL") {
     Some(url) => url,
     None => "http://[::1]:50051",
 };

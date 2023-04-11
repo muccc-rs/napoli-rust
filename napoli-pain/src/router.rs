@@ -1,6 +1,6 @@
 use crate::homepage::Homepage;
 use crate::orderlistitem::*;
-use crate::BASE_URL;
+use crate::BACKEND_URL;
 
 use yew::prelude::*;
 use yew_router::prelude::*;
@@ -15,7 +15,7 @@ pub enum Route {
 
 fn switch(routes: Route) -> Html {
     match routes {
-        Route::Home => html! { <Homepage base_url={BASE_URL} /> },
+        Route::Home => html! { <Homepage backend_url={BACKEND_URL} /> },
         Route::OrderListEntry { id } => html! {
             <OrderListItem id={id} />
         },

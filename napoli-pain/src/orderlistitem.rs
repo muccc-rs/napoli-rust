@@ -25,7 +25,7 @@ impl Component for OrderListItem {
 
     fn create(ctx: &Context<Self>) -> Self {
         let svc = service::Napoli {
-            base_url: crate::BASE_URL.to_string(),
+            backend_url: crate::BACKEND_URL.to_string(),
         };
         ctx.link().send_future(async move {
             match svc.get_orders().await {
@@ -45,7 +45,7 @@ impl Component for OrderListItem {
             Self::Message::OrderFetchFailed(_e) => false,
             Self::Message::SetOrderEntryPaid { entry_id, paid } => {
                 let svc = service::Napoli {
-                    base_url: crate::BASE_URL.to_string(),
+                    backend_url: crate::BACKEND_URL.to_string(),
                 };
                 let order_id = ctx.props().id;
                 ctx.link().send_future(async move {

@@ -21,7 +21,7 @@ pub struct Homepage {
 
 #[derive(Properties, Clone, PartialEq, Default)]
 pub struct AppConfigProps {
-    pub base_url: String,
+    pub backend_url: String,
 }
 
 impl Component for Homepage {
@@ -30,7 +30,7 @@ impl Component for Homepage {
 
     fn create(ctx: &Context<Self>) -> Self {
         let svc = service::Napoli {
-            base_url: ctx.props().base_url.clone(),
+            backend_url: ctx.props().backend_url.clone(),
         };
         ctx.link().send_future(async move {
             match svc.get_orders().await {
