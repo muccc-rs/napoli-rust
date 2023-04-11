@@ -1,46 +1,21 @@
-use crate::orderlistitem::*;
 use crate::service;
-use crate::BASE_URL;
 use napoli_lib::napoli as npb;
 use yew::prelude::*;
-use yew_router::prelude::*;
-#[derive(Clone, Routable, PartialEq)]
-enum Route {
-    #[at("/")]
-    Home,
-    #[at("/order/:id")]
-    OrderListEntry { id: u32 },
-}
+
+use crate::components::orderlist::orderlist::OrderList;
+
 pub enum Msg {
     GotOrders(Vec<npb::Order>),
     OrderFetchFailed(service::ServiceError),
 }
-fn switch(routes: Route) -> Html {
-    match routes {
-        Route::Home => html! { <Page base_url={BASE_URL} /> },
-        Route::OrderListEntry { id } => html! {
-            <OrderListItem id={id} />
-        },
-    }
-}
 
-#[function_component(Main)]
-pub fn app() -> Html {
-    html! {
-        <div style="font-family: monospace">
-            <BrowserRouter>
-                <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>
-            </BrowserRouter>
-        </div>
-    }
-}
 pub enum FetchOrdersState {
     Fetching,
     Got(Vec<npb::Order>),
     Failed(service::ServiceError),
 }
 
-pub struct Page {
+pub struct Homepage {
     orders: FetchOrdersState,
 }
 
@@ -49,7 +24,7 @@ pub struct AppConfigProps {
     pub base_url: String,
 }
 
-impl Component for Page {
+impl Component for Homepage {
     type Message = Msg;
     type Properties = AppConfigProps;
 
@@ -98,75 +73,6 @@ impl Component for Page {
                     <OrderList {orders} />
                 }
             }
-        }
-    }
-}
-
-#[derive(PartialEq, Eq, Properties)]
-pub struct OrderListEntryProps {
-    pub order: npb::Order,
-}
-
-pub struct OrderListEntry {}
-
-impl Component for OrderListEntry {
-    type Message = ();
-    type Properties = OrderListEntryProps;
-
-    fn create(_ctx: &Context<Self>) -> Self {
-        Self {}
-    }
-
-    fn view(&self, ctx: &Context<Self>) -> Html {
-        let o = &ctx.props().order;
-        let order_url = format!("/order/{}", o.id);
-        let left_style = "padding-right: 1em; text-align: right;";
-        let tr_style = "";
-        let table_style = "padding-bottom: 1em;";
-        html! {
-                    <table style={table_style}>
-                    <tr style={tr_style}><td style={left_style}>{"Order Details"}</td><td>
-                        <Link<Route> to={Route::OrderListEntry { id: o.id }}>{ order_url }</Link<Route>>
-                    </td></tr>
-                    <tr style={tr_style}><td style={left_style}>{"Order Number"}</td><td>{o.id}</td></tr>
-                    <tr style={tr_style}><td style={left_style}>{"Menu URL"}</td><td><a href={ o.menu_url.clone() }>{ o.menu_url.clone() }</a>
-        </td></tr>
-                    </table>
-                }
-    }
-}
-
-#[derive(PartialEq, Eq, Properties)]
-pub struct OrderListProps {
-    pub orders: Vec<npb::Order>,
-}
-
-pub struct OrderList {}
-
-impl Component for OrderList {
-    type Message = ();
-    type Properties = OrderListProps;
-
-    fn create(_ctx: &Context<Self>) -> Self {
-        Self {}
-    }
-
-    fn view(&self, ctx: &Context<Self>) -> Html {
-        let orders = ctx
-            .props()
-            .orders
-            .iter()
-            .cloned()
-            .map(|order| {
-                html! {
-                    <OrderListEntry {order} />
-                }
-            })
-            .collect::<Vec<_>>();
-        html! {
-            <ul>
-            { orders }
-            </ul>
         }
     }
 }
