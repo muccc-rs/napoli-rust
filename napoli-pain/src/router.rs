@@ -1,5 +1,6 @@
 use crate::components::homepage::Homepage;
 use crate::components::orderdetails::OrderDetails;
+use crate::components::servername::ServerName;
 use crate::BACKEND_URL;
 
 use yew::prelude::*;
@@ -26,6 +27,7 @@ fn switch(routes: Route) -> Html {
 pub fn app() -> Html {
     html! {
         <div style="font-family: monospace">
+            <ServerName name={BACKEND_URL} />
             <BrowserRouter>
                 <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>
             </BrowserRouter>
