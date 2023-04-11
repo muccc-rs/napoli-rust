@@ -1501,6 +1501,7 @@ dependencies = [
  "tonic",
  "tonic-web-wasm-client",
  "wasm-bindgen",
+ "web-sys",
  "yew",
  "yew-router",
 ]

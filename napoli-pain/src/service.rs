@@ -4,7 +4,7 @@ use yew::prelude::*;
 use napoli_lib::napoli as npb;
 use napoli_lib::napoli::order_service_client as npb_grpc;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ServiceError(String);
 
 impl ServiceError {
@@ -47,6 +47,14 @@ impl Napoli {
                 order_entry_id,
                 paid,
             })
+            .await?;
+        Ok(order.into_inner().order.expect("fucked up"))
+    }
+
+    pub async fn create_order(&self, menu_url: String) -> Result<npb::Order> {
+        let mut ocl = npb_grpc::OrderServiceClient::new(Client::new(self.backend_url.clone()));
+        let order = ocl
+            .create_order(npb::CreateOrderRequest { menu_url: menu_url })
             .await?;
         Ok(order.into_inner().order.expect("fucked up"))
     }
