@@ -1,5 +1,5 @@
-use crate::homepage::Homepage;
-use crate::orderlistitem::*;
+use crate::components::homepage::Homepage;
+use crate::components::orderdetails::OrderDetails;
 use crate::BACKEND_URL;
 
 use yew::prelude::*;
@@ -17,7 +17,7 @@ fn switch(routes: Route) -> Html {
     match routes {
         Route::Home => html! { <Homepage backend_url={BACKEND_URL} /> },
         Route::OrderListEntry { id } => html! {
-            <OrderListItem id={id} />
+            <OrderDetails id={id} />
         },
     }
 }

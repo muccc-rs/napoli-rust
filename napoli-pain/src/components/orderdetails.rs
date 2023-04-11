@@ -8,7 +8,7 @@ pub struct OrderListItemProps {
     pub id: u32,
 }
 
-pub struct OrderListItem {
+pub struct OrderDetails {
     order: Option<npb::Order>,
 }
 
@@ -19,7 +19,7 @@ pub enum OrderListItemMsg {
     OrderEntryPayed(npb::Order),
 }
 
-impl Component for OrderListItem {
+impl Component for OrderDetails {
     type Message = OrderListItemMsg;
     type Properties = OrderListItemProps;
 

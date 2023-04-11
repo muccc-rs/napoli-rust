@@ -1,6 +1,4 @@
 mod components;
-mod homepage;
-mod orderlistitem;
 mod router;
 mod service;
 

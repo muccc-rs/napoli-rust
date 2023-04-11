@@ -59,7 +59,7 @@ impl Component for Homepage {
     fn view(&self, _ctx: &Context<Self>) -> Html {
         match &self.orders {
             FetchOrdersState::Fetching => html! {
-                { "hold on to your butts" }
+                <h1>{ "hold on to your butts" }</h1>
             },
             FetchOrdersState::Failed(e) => html! {
                 <>
