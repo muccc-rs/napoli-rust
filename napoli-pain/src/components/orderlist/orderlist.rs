@@ -18,6 +18,12 @@ impl Component for OrderList {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
+        if ctx.props().orders.is_empty() {
+            return html! {
+                <p>{"No orders found"}</p>
+            };
+        }
+
         let orders = ctx
             .props()
             .orders
