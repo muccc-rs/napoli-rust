@@ -101,9 +101,9 @@ impl Component for OrderDetails {
                     .collect::<Vec<_>>();
 
             html! {
-                <div>
-                    <Link<Route> to={Route::Home}> {"< Back"} </Link<Route>>
-                    <ul>
+                <div class="my-8">
+                    <Link<Route> to={Route::Home} classes="btn"> {"< Back"} </Link<Route>>
+                    <ul class="mt-4">
                     { order_entries }
                     </ul>
                     <AddOrderEntryForm order_id={order.id} onclick={on_add_new_order_request} />

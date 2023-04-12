@@ -1,0 +1,6 @@
+[[hooks]]
+stage = "pre_build"
+command = "sh"
+# dev: command_arguments = ["-c", "npx tailwindcss -i input.css -o output.css -c tailwind.config.js"]
+# prod: command_arguments = ["-c", "NODE_ENV=production npx tailwindcss -i ./input.css -c ./tailwind.config.js -o ./output.css --minify"]
+command_arguments = ["-c", "npx tailwindcss -i input.css -o output.css -c tailwind.config.js"]

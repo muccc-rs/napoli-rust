@@ -21,16 +21,18 @@ impl Component for OrderListItem {
     fn view(&self, ctx: &Context<Self>) -> Html {
         let o = &ctx.props().order;
         let order_url = format!("/order/{}", o.id);
-        let left_style = "padding-right: 1em; text-align: right;";
-        let tr_style = "";
-        let table_style = "padding-bottom: 1em;";
+        let left_classes = "pr-4 text-right";
         html! {
-                    <table style={table_style}>
-                    <tr style={tr_style}><td style={left_style}>{"Order Details"}</td><td>
-                        <Link<Route> to={Route::OrderListEntry { id: o.id }}>{ order_url }</Link<Route>>
+                    <table class="mb-4">
+                    <tr><td class={left_classes}>{"Order Details"}</td><td>
+                        <Link<Route>
+                            to={Route::OrderListEntry { id: o.id }}
+                            classes="link">
+                            { order_url }
+                        </Link<Route>>
                     </td></tr>
-                    <tr style={tr_style}><td style={left_style}>{"Order Number"}</td><td>{o.id}</td></tr>
-                    <tr style={tr_style}><td style={left_style}>{"Menu URL"}</td><td><a href={ o.menu_url.clone() }>{ o.menu_url.clone() }</a>
+                    <tr><td class={left_classes}>{"Order Number"}</td><td>{o.id}</td></tr>
+                    <tr><td class={left_classes}>{"Menu URL"}</td><td><a class="link" href={ o.menu_url.clone() }>{ o.menu_url.clone() }</a>
         </td></tr>
                     </table>
                 }

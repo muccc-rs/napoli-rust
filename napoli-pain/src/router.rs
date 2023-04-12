@@ -26,7 +26,7 @@ fn switch(routes: Route) -> Html {
 #[function_component(Router)]
 pub fn app() -> Html {
     html! {
-        <div style="font-family: monospace">
+        <div class="m-4 font-mono">
             <ServerName name={BACKEND_URL} />
             <BrowserRouter>
                 <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>

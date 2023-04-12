@@ -23,12 +23,14 @@ pub fn add_order_entry_form(props: &AddOrderEntryFormProps) -> Html {
     let price_str = price.to_string();
 
     html! {
-        <div>
+        <div class="pt-8">
             <h1>{ "Add Entry To Order" }</h1>
-            <form style="margin: 16px 0px" onsubmit={move |e: SubmitEvent| { e.prevent_default() }}>
+            <form style="my-8" onsubmit={move |e: SubmitEvent| { e.prevent_default() }}>
+            <div class="mb-1">
                 <label for="food">{"Food:"}</label>
                 <input
                     id="food"
+                    class="textinput ml-2"
                     name="food"
                     type="text"
                     minlength=2
@@ -39,33 +41,41 @@ pub fn add_order_entry_form(props: &AddOrderEntryFormProps) -> Html {
                         let input = e.target_unchecked_into::<web_sys::HtmlInputElement>();
                         food.set(input.value());
                     }}/>
-                <label for="buyer">{"Buyer:"}</label>
-                <input
-                    id="buyer"
-                    name="buyer"
-                    type="text"
-                    minlength=2
-                    placeholder="Buyer"
-                    required=true
-                    value={buyer.to_string()}
-                    oninput={move |e: InputEvent| {
-                        let input = e.target_unchecked_into::<web_sys::HtmlInputElement>();
-                        buyer.set(input.value());
-                    }}/>
-                <label for="price">{"Price:"}</label>
-                <input
-                    id="price"
-                    name="price"
-                    type="number"
-                    placeholder="Price"
-                    required=true
-                    value={price.to_string()}
-                    oninput={move |e: InputEvent| {
-                        let input = e.target_unchecked_into::<web_sys::HtmlInputElement>();
-                        price.set(input.value());
-                    }}/>
+                </div>
+                <div class="mb-1">
+                    <label for="buyer">{"Buyer:"}</label>
+                    <input
+                        id="buyer"
+                        class="textinput ml-2"
+                        name="buyer"
+                        type="text"
+                        minlength=2
+                        placeholder="Buyer"
+                        required=true
+                        value={buyer.to_string()}
+                        oninput={move |e: InputEvent| {
+                            let input = e.target_unchecked_into::<web_sys::HtmlInputElement>();
+                            buyer.set(input.value());
+                        }}/>
+                </div>
+                <div class="mb-2">
+                    <label for="price">{"Price:"}</label>
+                    <input
+                        id="price"
+                        class="textinput ml-2"
+                        name="price"
+                        type="number"
+                        placeholder="Price"
+                        required=true
+                        value={price.to_string()}
+                        oninput={move |e: InputEvent| {
+                            let input = e.target_unchecked_into::<web_sys::HtmlInputElement>();
+                            price.set(input.value());
+                        }}/>
+                </div>
                 <input
                     type="submit"
+                    class="btn"
                     disabled={!is_form_valid}
                     value="Add Order Entry"
                     onclick={props.onclick.reform(move |_| napoli_lib::napoli::AddOrderEntryRequest {

@@ -13,8 +13,8 @@ pub fn new_order_form(props: &NewOrderFormProps) -> Html {
 
     let onclick = props.onclick.reform(move |_| mu_clone.to_string());
     html! {
-        <form style="margin: 16px 0px" onsubmit={move |e: SubmitEvent| { e.prevent_default() }}>
-            <label for="menu_url">{"Menu URL:"}</label>
+        <form class="my-8" onsubmit={move |e: SubmitEvent| { e.prevent_default() }}>
+            <label for="menu_url" class="mr-4">{"Menu URL:"}</label>
             <input
                 id="menu_url"
                 name="menu_url"
@@ -24,8 +24,14 @@ pub fn new_order_form(props: &NewOrderFormProps) -> Html {
                 oninput={move |e: InputEvent| {
                     let input = e.target_unchecked_into::<web_sys::HtmlInputElement>();
                     menu_url.set(input.value());
-                }}/>
-            <input type="submit" value="Open new order" {onclick}/>
+                }}
+                class="textinput"
+                />
+            <input
+                type="submit"
+                value="Open new order"
+                class="btn"
+                {onclick}/>
         </form>
     }
 }
