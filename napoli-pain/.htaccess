@@ -1,0 +1,13 @@
+# Allow mod_dir to serve index.html when requesting the directory
+DirectoryIndex index.html
+
+RewriteEngine On
+
+# Exclude requests for static files with .js, .wasm, or .css extensions
+RewriteCond %{REQUEST_URI} !\.(js|wasm|css)$ [NC]
+
+# Exclude requests for the index.html file itself
+RewriteCond %{REQUEST_URI} !^/index\.html$ [NC]
+
+# Rewrite all other requests to index.html
+RewriteRule ^(.*)$ /index.html [L]
