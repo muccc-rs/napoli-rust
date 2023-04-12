@@ -1,10 +1,15 @@
-use crate::service::{self};
+use crate::{
+    components::orderdetails::add_order_entry_form::AddOrderEntryForm,
+    router::Route,
+    service::{self},
+};
 
 use napoli_lib::napoli as npb;
 use yew::prelude::*;
+use yew_router::prelude::Link;
 
 #[derive(PartialEq, Eq, Properties)]
-pub struct OrderListItemProps {
+pub struct OrderDetailsProps {
     pub id: u32,
 }
 
@@ -12,21 +17,20 @@ pub struct OrderDetails {
     order: Option<npb::Order>,
 }
 
-pub enum OrderListItemMsg {
+pub enum OrderDetailsMsg {
     GotOrders(Vec<npb::Order>),
     OrderFetchFailed(service::ServiceError),
     SetOrderEntryPaid { entry_id: u32, paid: bool },
-    OrderEntryPayed(npb::Order),
+    GotOrderUpdated(npb::Order),
+    AddOrderEntry(npb::AddOrderEntryRequest),
 }
 
 impl Component for OrderDetails {
-    type Message = OrderListItemMsg;
-    type Properties = OrderListItemProps;
+    type Message = OrderDetailsMsg;
+    type Properties = OrderDetailsProps;
 
     fn create(ctx: &Context<Self>) -> Self {
-        let svc = service::Napoli {
-            backend_url: crate::BACKEND_URL.to_string(),
-        };
+        let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
         ctx.link().send_future(async move {
             match svc.get_orders().await {
                 Ok(orders) => Self::Message::GotOrders(orders),
@@ -44,19 +48,27 @@ impl Component for OrderDetails {
             }
             Self::Message::OrderFetchFailed(_e) => false,
             Self::Message::SetOrderEntryPaid { entry_id, paid } => {
-                let svc = service::Napoli {
-                    backend_url: crate::BACKEND_URL.to_string(),
-                };
+                let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
                 let order_id = ctx.props().id;
                 ctx.link().send_future(async move {
                     match svc.set_order_entry_paid(order_id, entry_id, paid).await {
-                        Ok(order) => Self::Message::OrderEntryPayed(order),
+                        Ok(order) => Self::Message::GotOrderUpdated(order),
                         Err(e) => Self::Message::OrderFetchFailed(e), // This is fine 🔥
                     }
                 });
                 false
             }
-            Self::Message::OrderEntryPayed(order) => {
+            OrderDetailsMsg::AddOrderEntry(add_order_entry_request) => {
+                let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
+                ctx.link().send_future(async move {
+                    match svc.add_order_entry(add_order_entry_request).await {
+                        Ok(order) => Self::Message::GotOrderUpdated(order),
+                        Err(e) => Self::Message::OrderFetchFailed(e),
+                    }
+                });
+                false
+            }
+            Self::Message::GotOrderUpdated(order) => {
                 self.order = Some(order);
                 true
             }
@@ -65,6 +77,12 @@ impl Component for OrderDetails {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         if let Some(order) = &self.order {
+            let on_add_new_order_request = ctx.link().callback(
+                |add_order_entry_request: napoli_lib::napoli::AddOrderEntryRequest| {
+                    Self::Message::AddOrderEntry(add_order_entry_request)
+                },
+            );
+
             let order_entries =
                 order
                     .entries
@@ -83,9 +101,13 @@ impl Component for OrderDetails {
                     .collect::<Vec<_>>();
 
             html! {
-                <ul>
-                { order_entries }
-                </ul>
+                <div>
+                    <Link<Route> to={Route::Home}> {"< Back"} </Link<Route>>
+                    <ul>
+                    { order_entries }
+                    </ul>
+                    <AddOrderEntryForm order_id={order.id} onclick={on_add_new_order_request} />
+                </div>
             }
         } else {
             html! {

@@ -30,9 +30,7 @@ impl Component for Homepage {
     type Properties = AppConfigProps;
 
     fn create(ctx: &Context<Self>) -> Self {
-        let svc = service::Napoli {
-            backend_url: ctx.props().backend_url.clone(),
-        };
+        let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
         ctx.link().send_future(async move {
             match svc.get_orders().await {
                 Ok(orders) => Msg::GotOrders(orders),
@@ -55,9 +53,7 @@ impl Component for Homepage {
                 true
             }
             Msg::AddOrder(menu_url) => {
-                let svc = service::Napoli {
-                    backend_url: _ctx.props().backend_url.clone(),
-                };
+                let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
                 let orders = self.orders.clone();
                 _ctx.link().send_future(async move {
                     match svc.create_order(menu_url).await {
