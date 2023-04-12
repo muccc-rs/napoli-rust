@@ -2,7 +2,7 @@ use crate::{components::new_order_form::NewOrderForm, service};
 use napoli_lib::napoli as npb;
 use yew::prelude::*;
 
-use crate::components::orderlist::orderlist::OrderList;
+use crate::components::order_list::order_list::OrderList;
 
 pub enum Msg {
     GotOrders(Vec<npb::Order>),

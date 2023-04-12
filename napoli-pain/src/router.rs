@@ -1,6 +1,6 @@
 use crate::components::homepage::Homepage;
-use crate::components::orderdetails::orderdetails::OrderDetails;
-use crate::components::servername::ServerName;
+use crate::components::order_details::order_details::OrderDetails;
+use crate::components::server_name::ServerName;
 use crate::BACKEND_URL;
 
 use yew::prelude::*;

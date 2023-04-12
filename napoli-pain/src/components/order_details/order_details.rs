@@ -1,5 +1,5 @@
 use crate::{
-    components::orderdetails::add_order_entry_form::AddOrderEntryForm,
+    components::order_details::add_order_entry_form::AddOrderEntryForm,
     router::Route,
     service::{self},
 };

@@ -5,6 +5,7 @@ where
     tonic::Status::internal(err.to_string())
 }
 
+#[allow(dead_code)]
 pub fn grpc_check_err<T>(res: anyhow::Result<T>) -> std::result::Result<T, tonic::Status> {
     match res {
         Ok(t) => Ok(t),

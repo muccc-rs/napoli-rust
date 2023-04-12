@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::components::orderlist::orderlistitem::OrderListItem;
+use crate::components::order_list::order_list_item::OrderListItem;
 
 #[derive(PartialEq, Eq, Properties)]
 pub struct OrderListProps {
