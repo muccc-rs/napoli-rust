@@ -70,3 +70,5 @@ tags
 
 target
 *.sqlite
+.vscode/
+bonnie.toml
