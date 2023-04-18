@@ -78,7 +78,9 @@ Requirements engineering done. Tasted great.
 | Show a detailed view of a single order |  ✅ | ✅ |
 | Add a new order |  ✅ | ✅ |
 | Add a new item to an order |  ✅ | ✅ |
-| Remove an item from an order | ✅ | 🙅‍♀️ |
+| Remove an item from an order | ✅ | ✅ |
 | Change the state of an order |  ✅ | 🙅‍♀️ |
 | Show an extra summary view for ordering via the phone | - | 🙅‍♀️ |
 | Notify the user when the order pickup is ready |  - | 🙅‍♀️ |
+| Filter by order state on homepage | 🙅‍♀️ | 🙅‍♀️ |
+| Track order date | 🙅‍♀️ | 🙅‍♀️ |

@@ -20,9 +20,10 @@ pub struct OrderDetails {
 pub enum OrderDetailsMsg {
     GotOrders(Vec<npb::Order>),
     OrderFetchFailed(service::ServiceError),
-    SetOrderEntryPaid { entry_id: u32, paid: bool },
     GotOrderUpdated(npb::Order),
     AddOrderEntry(npb::AddOrderEntryRequest),
+    SetOrderEntryPaid { entry_id: u32, paid: bool },
+    RemoveOrderEntry { entry_id: u32 },
 }
 
 impl Component for OrderDetails {
@@ -58,6 +59,23 @@ impl Component for OrderDetails {
                 });
                 false
             }
+            Self::Message::RemoveOrderEntry { entry_id } => {
+                let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
+                let order_id = ctx.props().id;
+                ctx.link().send_future(async move {
+                    match svc
+                        .remove_order_entry(npb::OrderEntryRequest {
+                            order_id,
+                            order_entry_id: entry_id,
+                        })
+                        .await
+                    {
+                        Ok(order) => Self::Message::GotOrderUpdated(order),
+                        Err(e) => Self::Message::OrderFetchFailed(e),
+                    }
+                });
+                false
+            }
             OrderDetailsMsg::AddOrderEntry(add_order_entry_request) => {
                 let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
                 ctx.link().send_future(async move {
@@ -89,13 +107,16 @@ impl Component for OrderDetails {
                     .iter()
                     .cloned()
                     .map(|order_entry| {
-                        let paid_callback = ctx.link().callback(|(entry_id, paid)| {
+                        let on_paid_clicked = ctx.link().callback(|(entry_id, paid)| {
                             Self::Message::SetOrderEntryPaid { entry_id, paid }
                         });
+                        let on_remove_clicked = ctx
+                            .link()
+                            .callback(|entry_id| Self::Message::RemoveOrderEntry { entry_id });
                         html! {
-                           <li style="list-style: none">
-                           <OrderEntry {order_entry} {paid_callback}/>
-                           </li>
+                            <li style="list-style: none">
+                                <OrderEntry {order_entry} {on_paid_clicked} {on_remove_clicked}/>
+                            </li>
                         }
                     })
                     .collect::<Vec<_>>();
@@ -119,13 +140,15 @@ impl Component for OrderDetails {
 
 pub enum OrderEntryMsg {
     PayOrderEntry,
+    RemoveOrderEntry,
 }
 
 pub struct OrderEntry {}
 #[derive(PartialEq, Properties)]
 pub struct OrderEntryProps {
     pub order_entry: npb::OrderEntry,
-    pub paid_callback: Callback<(u32, bool)>,
+    pub on_paid_clicked: Callback<(u32, bool)>,
+    pub on_remove_clicked: Callback<u32>,
 }
 impl Component for OrderEntry {
     type Message = OrderEntryMsg;
@@ -140,8 +163,9 @@ impl Component for OrderEntry {
         match msg {
             Self::Message::PayOrderEntry => ctx
                 .props()
-                .paid_callback
+                .on_paid_clicked
                 .emit((order_entry.id, !order_entry.paid)),
+            Self::Message::RemoveOrderEntry => ctx.props().on_remove_clicked.emit(order_entry.id),
         }
         false
     }
@@ -150,21 +174,28 @@ impl Component for OrderEntry {
         let entry = &ctx.props().order_entry;
         let left_style = "padding-right: 1em; text-align: right;";
         let tr_style = "";
-        let table_style = "padding-bottom: 1em;";
         html! {
-            <table style={table_style}>
-            <tr style={tr_style}><td style={left_style}>{"Person"}</td><td>{&entry.buyer}</td></tr>
-            <tr style={tr_style}><td style={left_style}>{"Price"}</td><td>{format!("{:.2}\u{00a0}€", entry.price)}</td></tr>
-            <tr style={tr_style}><td style={left_style}>{"Food"}</td><td>{&entry.food}</td></tr>
-            <tr style={tr_style}>
-                <td style={left_style}>{"Paid"}</td>
-                <td>
-                    <button onclick={ctx.link().callback(|_| OrderEntryMsg::PayOrderEntry)}>
-                        {if entry.paid {"\u{2705}"} else {"\u{274c}"}}
-                    </button>
-                </td>
-            </tr>
-            <tr style={tr_style}><td style={left_style}>{"Id"}</td><td>{&entry.id}</td></tr>
+            <table class="mb-4">
+                <tr style={tr_style}><td style={left_style}>{"Person"}</td><td>{&entry.buyer}</td></tr>
+                <tr style={tr_style}><td style={left_style}>{"Price"}</td><td>{format!("{:.2}\u{00a0}€", entry.price)}</td></tr>
+                <tr style={tr_style}><td style={left_style}>{"Food"}</td><td>{&entry.food}</td></tr>
+                <tr style={tr_style}>
+                    <td style={left_style}>{"Paid"}</td>
+                    <td>
+                        <button onclick={ctx.link().callback(|_| OrderEntryMsg::PayOrderEntry)}>
+                            {if entry.paid {"\u{2705}"} else {"\u{274c}"}}
+                        </button>
+                    </td>
+                </tr>
+                <tr style={tr_style}><td style={left_style}>{"Id"}</td><td>{&entry.id}</td></tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button class="btn mt-2 mb-2" onclick={ctx.link().callback(|_| OrderEntryMsg::RemoveOrderEntry)}>
+                            {"Remove Entry"}
+                        </button>
+                    </td>
+                </tr>
             </table>
         }
     }

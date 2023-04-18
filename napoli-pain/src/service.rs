@@ -71,4 +71,12 @@ impl Napoli {
         let order = self.client.add_order_entry(request).await?;
         Ok(order.into_inner().order.expect("fucked up"))
     }
+
+    pub async fn remove_order_entry(
+        &mut self,
+        request: npb::OrderEntryRequest,
+    ) -> Result<npb::Order> {
+        let order = self.client.remove_order_entry(request).await?;
+        Ok(order.into_inner().order.expect("fucked up"))
+    }
 }
