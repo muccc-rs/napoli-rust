@@ -121,9 +121,16 @@ impl Component for OrderDetails {
                     })
                     .collect::<Vec<_>>();
 
+            let id = order.id;
+            let menu_url = order.menu_url.clone();
+            let menu_url_text = menu_url.clone();
+
             html! {
                 <div class="my-8">
                     <Link<Route> to={Route::Home} classes="btn"> {"< Back"} </Link<Route>>
+                    <h1 class="mt-8">{"Order #"}{id}</h1>
+                    <p>{"Menu URL: "}<a class="link" href={menu_url}>{menu_url_text}</a></p>
+
                     <ul class="mt-4">
                     { order_entries }
                     </ul>
