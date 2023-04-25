@@ -135,6 +135,7 @@ impl Component for OrderDetails {
                     { order_entries }
                     </ul>
                     <AddOrderEntryForm order_id={order.id} onclick={on_add_new_order_request} />
+                    <OrderSummary order_entries={order.entries.clone()} />
                 </div>
             }
         } else {
@@ -205,5 +206,54 @@ impl Component for OrderEntry {
                 </tr>
             </table>
         }
+    }
+}
+
+#[derive(PartialEq, Properties)]
+pub struct OrderSummaryProps {
+    pub order_entries: Vec<npb::OrderEntry>,
+}
+
+#[function_component(OrderSummary)]
+pub fn order_summary_props(props: &OrderSummaryProps) -> Html {
+    // summarize by food name
+
+    let mut food_to_order_entries: std::collections::HashMap<String, Vec<npb::OrderEntry>> =
+        std::collections::HashMap::new();
+
+    for order_entry in &props.order_entries {
+        let food = order_entry.food.clone().to_ascii_lowercase();
+        let order_entries = food_to_order_entries.entry(food).or_insert(vec![]);
+        order_entries.push(order_entry.clone());
+    }
+
+    let food_to_order_entries_str = food_to_order_entries
+        .iter()
+        .map(|(food, order_entries)| {
+            html! {
+                <div>
+                    <p>{food}{"("}{order_entries.len()}{")"}</p>
+                    <ul>
+                        {order_entries.iter().map(|order_entry| html! {
+                            <li>{format!("{}", order_entry.buyer)}</li>
+                        }).collect::<Vec<_>>()}
+                    </ul>
+                </div>
+            }
+        })
+        .collect::<Vec<_>>();
+
+    let number_of_pizzas = props.order_entries.len();
+
+    html! {
+        <div>
+            <h1>{"Summary"}</h1>
+            <br />
+            <p>{food_to_order_entries_str}</p>
+            <p>{"Name: Hans Acker"}</p>
+            <br />
+            <h1>{"Number of Pizzas"}</h1>
+            <p>{number_of_pizzas}</p>
+        </div>
     }
 }
