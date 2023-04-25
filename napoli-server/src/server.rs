@@ -6,7 +6,7 @@ use napoli_lib::napoli::{
 
 use napoli_server_persistent_entities::order;
 use napoli_server_persistent_entities::order_entry;
-use sea_orm::{ActiveModelTrait, ModelTrait, Set};
+use sea_orm::{ActiveModelTrait, ModelTrait, QueryTrait, Set};
 use sea_orm::{DatabaseConnection, EntityTrait};
 use sea_orm::{IntoActiveModel, QueryOrder as _};
 use tonic::{Request, Response, Status};
@@ -26,9 +26,18 @@ impl OrderService for NapoliServer {
     ) -> Result<Response<GetOrdersReply>, Status> {
         println!("Got a request: {:?}", request);
 
-        let orders = order::Entity::find()
-            .order_by_desc(order::Column::Id)
-            .find_with_related(order_entry::Entity)
+        let orders_query = order::Entity::find()
+            .order_by(order::Column::Id, sea_orm::Order::Desc)
+            .find_with_related(order_entry::Entity);
+
+        println!(
+            "Query: {:?}",
+            orders_query
+                .build(sea_orm::DatabaseBackend::Sqlite)
+                .to_string()
+        );
+
+        let orders = orders_query
             .all(&self.db_handle)
             .await
             .map_err(map_to_status)?;
@@ -36,6 +45,8 @@ impl OrderService for NapoliServer {
         let orders = orders
             .into_iter()
             .map(|(order, entries)| {
+                println!("Order: {:?}", order);
+                // println!("Entries: {:?}", entries);
                 model_adapters::database_order_to_tonic_order(order, entries.into_iter())
             })
             .collect();

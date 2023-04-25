@@ -1,8 +1,8 @@
 use tonic_web_wasm_client::Client;
 use yew::prelude::*;
 
-use napoli_lib::napoli as npb;
 use napoli_lib::napoli::order_service_client as npb_grpc;
+use napoli_lib::napoli::{self as npb, ObjectId};
 
 #[derive(Debug, Clone)]
 pub struct ServiceError(String);
@@ -41,8 +41,8 @@ impl Napoli {
 
     pub async fn set_order_entry_paid(
         &mut self,
-        order_id: u32,
-        order_entry_id: u32,
+        order_id: ObjectId,
+        order_entry_id: ObjectId,
         paid: bool,
     ) -> Result<npb::Order> {
         let order = self

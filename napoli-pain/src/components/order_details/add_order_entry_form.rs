@@ -1,8 +1,9 @@
+use napoli_lib::napoli::ObjectId;
 use yew::prelude::*;
 
 #[derive(PartialEq, Properties)]
 pub struct AddOrderEntryFormProps {
-    pub order_id: u32,
+    pub order_id: ObjectId,
     pub onclick: Callback<napoli_lib::napoli::AddOrderEntryRequest>,
 }
 
@@ -83,7 +84,7 @@ pub fn add_order_entry_form(props: &AddOrderEntryFormProps) -> Html {
                         food: food_str.clone(),
                         buyer: buyer_str.clone(),
                         price_deprecated: 0.0,
-                        price_in_millicents: price_str.parse::<u32>().unwrap_or(0),
+                        price_in_millicents: price_str.parse::<ObjectId>().unwrap_or(0),
                 })}/>
             </form>
         </div>

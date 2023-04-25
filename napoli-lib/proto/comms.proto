@@ -11,7 +11,7 @@ message GetOrdersReply {
 }
 
 message GetOrderRequest {
-    uint32 order_id = 1;
+    int32 order_id = 1;
 }
 
 message CreateOrderRequest {
@@ -22,27 +22,27 @@ message SingleOrderReply {
 }
 
 message AddOrderEntryRequest {
-    uint32 order_id = 1;
+    int32 order_id = 1;
     string food = 2;
     string buyer = 3;
     // Deprecated: do not use
     double price_deprecated = 4;
-    uint32 price_in_millicents = 6;
+    int32 price_in_millicents = 6;
 }
 
 message OrderEntryRequest {
-    uint32 order_id = 1;
-    uint32 order_entry_id = 2;
+    int32 order_id = 1;
+    int32 order_entry_id = 2;
 }
 
 message UpdateOrderStateRequest {
-    uint32 order_id = 1;
+    int32 order_id = 1;
     OrderState state = 2;
 }
 
 message SetOrderEntryPaidRequest {
-    uint32 order_id = 1;
-    uint32 order_entry_id = 2;
+    int32 order_id = 1;
+    int32 order_entry_id = 2;
     bool paid = 3;
 }
 

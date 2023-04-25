@@ -3,6 +3,7 @@ use crate::components::order_details::order_details::OrderDetails;
 use crate::components::server_name::ServerName;
 use crate::BACKEND_URL;
 
+use napoli_lib::napoli::ObjectId;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -11,7 +12,7 @@ pub enum Route {
     #[at("/")]
     Home,
     #[at("/order/:id")]
-    OrderListEntry { id: u32 },
+    OrderListEntry { id: ObjectId },
 }
 
 fn switch(routes: Route) -> Html {

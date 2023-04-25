@@ -18,7 +18,7 @@ pub fn get_order_entry_from_add_request(
 ) -> Option<napoli_server_persistent_entities::order_entry::ActiveModel> {
     // This is to support the migration from price to price_in_millicents for the protocol
     let price_in_millicents = if request.price_deprecated > 0.0 {
-        (request.price_deprecated * 100000.0).round() as u32
+        (request.price_deprecated * 100000.0).round() as i32
     } else {
         request.price_in_millicents
     };

@@ -6,9 +6,8 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "order")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: u32,
+    pub id: i32,
     pub menu_url: String,
-    #[sea_orm(default_value = "1")]
     pub state: i32,
 }
 

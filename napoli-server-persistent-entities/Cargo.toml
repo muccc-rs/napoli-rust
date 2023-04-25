@@ -9,4 +9,4 @@ name = "napoli_server_persistent_entities"
 path = "src/lib.rs"
 
 [dependencies.sea-orm]
-version = "0.10.3"
+version = "^0.11.3"

@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 tonic = "0.8.3"
 tonic-reflection = "0.6.0"
-sea-orm = { version = "^0.10.0", features = [ "sqlx-sqlite", "runtime-tokio-rustls", "macros" ] }
+sea-orm = { version = "0.11.3", features = [ "sqlx-sqlite", "runtime-tokio-rustls", "macros" ] }
 tokio = { version = "1.24.2", features = ["full"] }
 futures = "0.3.25"
 napoli-lib = { path = "../napoli-lib" }

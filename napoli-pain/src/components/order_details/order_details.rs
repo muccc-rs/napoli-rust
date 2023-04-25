@@ -4,13 +4,13 @@ use crate::{
     service::{self},
 };
 
-use napoli_lib::napoli as npb;
+use napoli_lib::napoli::{self as npb, ObjectId};
 use yew::prelude::*;
 use yew_router::prelude::Link;
 
 #[derive(PartialEq, Eq, Properties)]
 pub struct OrderDetailsProps {
-    pub id: u32,
+    pub id: ObjectId,
 }
 
 pub struct OrderDetails {
@@ -22,8 +22,8 @@ pub enum OrderDetailsMsg {
     OrderFetchFailed(service::ServiceError),
     GotOrderUpdated(npb::Order),
     AddOrderEntry(npb::AddOrderEntryRequest),
-    SetOrderEntryPaid { entry_id: u32, paid: bool },
-    RemoveOrderEntry { entry_id: u32 },
+    SetOrderEntryPaid { entry_id: ObjectId, paid: bool },
+    RemoveOrderEntry { entry_id: ObjectId },
 }
 
 impl Component for OrderDetails {
@@ -155,8 +155,8 @@ pub struct OrderEntry {}
 #[derive(PartialEq, Properties)]
 pub struct OrderEntryProps {
     pub order_entry: npb::OrderEntry,
-    pub on_paid_clicked: Callback<(u32, bool)>,
-    pub on_remove_clicked: Callback<u32>,
+    pub on_paid_clicked: Callback<(ObjectId, bool)>,
+    pub on_remove_clicked: Callback<ObjectId>,
 }
 impl Component for OrderEntry {
     type Message = OrderEntryMsg;
