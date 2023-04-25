@@ -16,13 +16,20 @@ pub fn get_order_from_create_request(
 pub fn get_order_entry_from_add_request(
     request: AddOrderEntryRequest,
 ) -> Option<napoli_server_persistent_entities::order_entry::ActiveModel> {
+    // This is to support the migration from price to price_in_millicents for the protocol
+    let price_in_millicents = if request.price_deprecated > 0.0 {
+        (request.price_deprecated * 100000.0).round() as u32
+    } else {
+        request.price_in_millicents
+    };
+
     Some(
         napoli_server_persistent_entities::order_entry::ActiveModel {
             id: NotSet,
             order_id: Set(request.order_id),
             buyer: Set(request.buyer),
             food: Set(request.food),
-            price: Set(request.price),
+            price_in_millicents: Set(price_in_millicents),
             paid: Set(false),
         },
     )
@@ -45,7 +52,8 @@ pub fn database_order_to_tonic_order(
                 id: entry.id,
                 buyer: entry.buyer.to_owned(),
                 food: entry.food.to_owned(),
-                price: entry.price,
+                price_deprecated: entry.price_in_millicents as f64 / 100000.0,
+                price_in_millicents: entry.price_in_millicents,
                 paid: entry.paid,
             })
             .collect(),

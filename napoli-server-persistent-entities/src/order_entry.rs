@@ -2,7 +2,7 @@
 
 use sea_orm::entity::prelude::*;
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "order_entry")]
 pub struct Model {
     #[sea_orm(primary_key)]
@@ -11,7 +11,7 @@ pub struct Model {
     pub buyer: String,
     pub food: String,
     pub paid: bool,
-    pub price: f64,
+    pub price_in_millicents: u32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

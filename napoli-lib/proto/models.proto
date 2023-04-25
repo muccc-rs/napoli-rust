@@ -7,7 +7,9 @@ message OrderEntry {
     uint32 id = 1; // the slug name / id of this order entry
     string food = 2;
     string buyer = 3;
-    double price = 4;
+    // Deprecated: do not use
+    double price_deprecated = 4;
+    uint32 price_in_millicents = 6;
     bool paid = 5;
 }
 

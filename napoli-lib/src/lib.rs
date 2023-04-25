@@ -19,7 +19,8 @@ pub fn create_example_order() -> napoli::Order {
         id: 1,
         buyer: "John".to_string(),
         food: "pizza".to_string(),
-        price: 10.0,
+        price_deprecated: 0.0,
+        price_in_millicents: 10000,
         paid: false,
     };
     order.entries.push(entry);
@@ -28,7 +29,8 @@ pub fn create_example_order() -> napoli::Order {
         id: 2,
         buyer: "Jane".to_string(),
         food: "pizza".to_string(),
-        price: 10.0,
+        price_deprecated: 0.0,
+        price_in_millicents: 10000,
         paid: false,
     };
 

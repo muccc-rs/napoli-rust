@@ -80,7 +80,9 @@ Requirements engineering done. Tasted great.
 | Add a new item to an order |  ✅ | ✅ |
 | Remove an item from an order | ✅ | ✅ |
 | Change the state of an order |  ✅ | 🙅‍♀️ |
-| Show an extra summary view for ordering via the phone | - | 🙅‍♀️ |
+| Show an extra summary view for ordering via the phone | - | ✅ |
+| Track order by datetime | 🙅‍♀️ | 🙅‍♀️ |
+| Track order pickup time | 🙅‍♀️ | 🙅‍♀️ |
 | Notify the user when the order pickup is ready |  - | 🙅‍♀️ |
 | Filter by order state on homepage | 🙅‍♀️ | 🙅‍♀️ |
-| Track order date | 🙅‍♀️ | 🙅‍♀️ |
+| Some way to authenticate users | 🙅‍♀️ | 🙅‍♀️ |

@@ -182,10 +182,13 @@ impl Component for OrderEntry {
         let entry = &ctx.props().order_entry;
         let left_style = "padding-right: 1em; text-align: right;";
         let tr_style = "";
+
+        let price_in_euros = entry.price_in_millicents as f64 / 1000.0;
+
         html! {
             <table class="mb-4">
                 <tr style={tr_style}><td style={left_style}>{"Person"}</td><td>{&entry.buyer}</td></tr>
-                <tr style={tr_style}><td style={left_style}>{"Price"}</td><td>{format!("{:.2}\u{00a0}€", entry.price)}</td></tr>
+                <tr style={tr_style}><td style={left_style}>{"Price"}</td><td>{format!("{:.2}\u{00a0}€", price_in_euros)}</td></tr>
                 <tr style={tr_style}><td style={left_style}>{"Food"}</td><td>{&entry.food}</td></tr>
                 <tr style={tr_style}>
                     <td style={left_style}>{"Paid"}</td>
