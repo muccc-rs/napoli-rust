@@ -8,6 +8,11 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  release_name: build_${{github.run_number}}
+  # an=artifact_name
+  an_napoli_server: napoli-server-linux-x64
+  an_napoli_pain: napoli-pain-wasm.tar.gz
+
 
 jobs:
   build:
@@ -24,9 +29,52 @@ jobs:
           ~/.cargo/git/db/
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-    - name: Install Protoc
-      uses: arduino/setup-protoc@v1
+    - uses: arduino/setup-protoc@v1
+    - uses: jetli/trunk-action@v0.4.0
+      with:
+        # Optional version of trunk to install(eg. 'v0.16.0', 'latest')
+        version: 'latest'
     - name: Build All
       run: cargo build --verbose
     - name: Run all tests
       run: cargo test --verbose
+    - name: Build release for ${{ env.an_napoli_pain }}
+      run: |
+        cd napoli-pain
+        BACKEND_URL=\"https://napoli-server.geile.software\" trunk build --release index.html
+        tar -czvf ${{ env.an_napoli_pain }} dist/
+    - name: Build release for ${{ env.an_napoli_server }}
+      run: |
+        cargo build --release --bin napoli-server
+    - name: Upload ${{ env.an_napoli_server }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.an_napoli_server }}
+        path: target/release/napoli-server
+        retention-days: 5
+    - name: Upload ${{ env.an_napoli_pain }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.an_napoli_pain }}
+        path: napoli-pain/${{ env.an_napoli_pain }}
+        retention-days: 5
+    - name: Print directory content
+      run: ls -R
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: 'Create Release'
+        shell: bash
+        run: |
+          mv artifacts/${{ env.an_napoli_server }}/napoli-server artifacts/${{ env.an_napoli_server }}/${{ env.an_napoli_server }}
+          hub release create ${{ env.release_name }} -m ${{ env.release_name }} -a artifacts/${{ env.an_napoli_server }}/${{ env.an_napoli_server }} -a artifacts/${{ env.an_napoli_pain }}/${{ env.an_napoli_pain }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
