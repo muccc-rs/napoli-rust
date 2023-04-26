@@ -16,7 +16,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v3
@@ -45,13 +45,13 @@ jobs:
         tar -czvf ${{ env.an_napoli_pain }} dist/
     - name: Build release for ${{ env.an_napoli_server }}
       run: |
-        rustup target add x86_64-unknown-linux-musl
-        cargo build --release --bin napoli-server --target x86_64-unknown-linux-musl
+        rustup target add x86_64-unknown-linux-gnu
+        cargo build --release --bin napoli-server --target x86_64-unknown-linux-gnu
     - name: Upload ${{ env.an_napoli_server }}
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.an_napoli_server }}
-        path: target/release/napoli-server
+        path: target/x86_64-unknown-linux-gnu/release/napoli-server
         retention-days: 5
     - name: Upload ${{ env.an_napoli_pain }}
       uses: actions/upload-artifact@v3
