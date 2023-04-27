@@ -45,7 +45,8 @@ jobs:
         tar -czvf ${{ env.an_napoli_pain }} dist/
     - name: Build release for ${{ env.an_napoli_server }}
       run: |
-        cargo build --release --bin napoli-server
+        rustup target add x86_64-unknown-linux-musl
+        cargo build --release --bin napoli-server --target x86_64-unknown-linux-musl
     - name: Upload ${{ env.an_napoli_server }}
       uses: actions/upload-artifact@v3
       with:
