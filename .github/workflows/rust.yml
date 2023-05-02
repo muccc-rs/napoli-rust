@@ -41,8 +41,10 @@ jobs:
     - name: Build release for ${{ env.an_napoli_pain }}
       run: |
         cd napoli-pain
-        BACKEND_URL=\"https://napoli-server.geile.software\" trunk build --release index.html
+        trunk build --release index.html
         tar -czvf ${{ env.an_napoli_pain }} dist/
+      env:
+        BACKEND_URL: ${{ vars.BACKEND_URL }}
     - name: Build release for ${{ env.an_napoli_server }}
       run: |
         rustup target add x86_64-unknown-linux-gnu
