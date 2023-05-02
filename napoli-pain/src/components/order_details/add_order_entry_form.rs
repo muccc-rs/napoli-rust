@@ -84,7 +84,7 @@ pub fn add_order_entry_form(props: &AddOrderEntryFormProps) -> Html {
                         food: food_str.clone(),
                         buyer: buyer_str.clone(),
                         price_deprecated: 0.0,
-                        price_in_millicents: price_str.parse::<ObjectId>().unwrap_or(0),
+                        price_in_millicents: price_str.parse::<i32>().unwrap_or(0)  * 1000,
                 })}/>
             </form>
         </div>
