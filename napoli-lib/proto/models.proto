@@ -9,7 +9,7 @@ message OrderEntry {
     string buyer = 3;
     // Deprecated: do not use
     double price_deprecated = 4;
-    int32 price_in_millicents = 6;
+    int64 price_in_millicents = 7;
     bool paid = 5;
 }
 

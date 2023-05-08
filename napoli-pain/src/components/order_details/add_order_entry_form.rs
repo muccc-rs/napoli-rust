@@ -14,14 +14,17 @@ pub fn add_order_entry_form(props: &AddOrderEntryFormProps) -> Html {
     let buyer = use_state(|| "".to_string());
     let price = use_state(|| "".to_string());
 
+    let price_mc = napoli_lib::Millicents::from_euro_human(&price);
+
     let is_food_valid = food.len() >= 2;
     let is_buyer_valid = buyer.len() >= 2;
-    let is_price_valid = price.parse::<f64>().is_ok();
+    let is_price_valid = price_mc.is_ok();
     let is_form_valid = is_food_valid && is_buyer_valid && is_price_valid;
 
     let food_str = food.to_string();
     let buyer_str = buyer.to_string();
-    let price_str = price.to_string();
+
+    let millicents = price_mc.map(|v| v.raw()).unwrap_or(0);
 
     html! {
         <div class="pt-8">
@@ -66,6 +69,7 @@ pub fn add_order_entry_form(props: &AddOrderEntryFormProps) -> Html {
                         class="textinput ml-2"
                         name="price"
                         type="number"
+                        step="0.01"
                         placeholder="Price"
                         required=true
                         value={price.to_string()}
@@ -84,7 +88,7 @@ pub fn add_order_entry_form(props: &AddOrderEntryFormProps) -> Html {
                         food: food_str.clone(),
                         buyer: buyer_str.clone(),
                         price_deprecated: 0.0,
-                        price_in_millicents: price_str.parse::<i32>().unwrap_or(0)  * 1000,
+                        price_in_millicents: millicents,
                 })}/>
             </form>
         </div>

@@ -1,4 +1,7 @@
-use napoli_lib::napoli::{AddOrderEntryRequest, CreateOrderRequest, SingleOrderReply};
+use napoli_lib::{
+    napoli::{AddOrderEntryRequest, CreateOrderRequest, SingleOrderReply},
+    Millicents,
+};
 use sea_orm::{ActiveValue::NotSet, Set};
 
 pub fn get_order_from_create_request(
@@ -17,10 +20,16 @@ pub fn get_order_entry_from_add_request(
     request: AddOrderEntryRequest,
 ) -> Option<napoli_server_persistent_entities::order_entry::ActiveModel> {
     // This is to support the migration from price to price_in_millicents for the protocol
-    let price_in_millicents = if request.price_deprecated > 0.0 {
-        (request.price_deprecated * 100000.0).round() as i32
+    let price_in_millicents = match if request.price_deprecated > 0.0 {
+        napoli_lib::Millicents::from_euro_float(request.price_deprecated)
     } else {
-        request.price_in_millicents
+        napoli_lib::Millicents::from_raw(request.price_in_millicents)
+    } {
+        Ok(v) => v,
+        Err(e) => {
+            println!("Failed to parse: {:?}", e);
+            return None;
+        }
     };
 
     Some(
@@ -29,7 +38,7 @@ pub fn get_order_entry_from_add_request(
             order_id: Set(request.order_id),
             buyer: Set(request.buyer),
             food: Set(request.food),
-            price_in_millicents: Set(price_in_millicents),
+            price_in_millicents: Set(price_in_millicents.raw()),
             paid: Set(false),
         },
     )
@@ -48,13 +57,24 @@ pub fn database_order_to_tonic_order(
         menu_url: order.menu_url,
         state: order.state,
         entries: order_entries
-            .map(|entry| napoli_lib::napoli::OrderEntry {
-                id: entry.id,
-                buyer: entry.buyer.to_owned(),
-                food: entry.food.to_owned(),
-                price_deprecated: entry.price_in_millicents as f64 / 100000.0,
-                price_in_millicents: entry.price_in_millicents,
-                paid: entry.paid,
+            .map(|entry| {
+                // TODO Add tainted flag to the protocol
+                let price = match napoli_lib::Millicents::from_raw(entry.price_in_millicents) {
+                    Ok(v) => v,
+                    Err(e) => {
+                        println!("Failed to parse: {:?}", e);
+                        Millicents::zero()
+                    }
+                };
+
+                napoli_lib::napoli::OrderEntry {
+                    id: entry.id,
+                    buyer: entry.buyer.to_owned(),
+                    food: entry.food.to_owned(),
+                    price_deprecated: price.to_euro_float(),
+                    price_in_millicents: entry.price_in_millicents,
+                    paid: entry.paid,
+                }
             })
             .collect(),
     }

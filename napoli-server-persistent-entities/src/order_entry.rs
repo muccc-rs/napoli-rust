@@ -11,7 +11,9 @@ pub struct Model {
     pub buyer: String,
     pub food: String,
     pub paid: bool,
-    pub price_in_millicents: i32,
+    // SeaORM doesn't generate i64s for sqlite databases, so change this manually every
+    // time you re-generate the models
+    pub price_in_millicents: i64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

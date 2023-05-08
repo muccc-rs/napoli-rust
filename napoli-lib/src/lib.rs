@@ -1,3 +1,6 @@
+pub mod millicents;
+pub use millicents::Millicents;
+
 pub mod napoli {
     tonic::include_proto!("napoli");
 

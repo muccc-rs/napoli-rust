@@ -183,12 +183,21 @@ impl Component for OrderEntry {
         let left_style = "padding-right: 1em; text-align: right;";
         let tr_style = "";
 
-        let price_in_euros = entry.price_in_millicents as f64 / 1000.0;
+        let price_str = match napoli_lib::Millicents::from_raw(entry.price_in_millicents) {
+            Ok(price) => {
+                let (euros, cents) = price.to_euro_tuple();
+                format!("{}.{:02}\u{00a0}€", euros, cents)
+            }
+            Err(e) => format!(
+                "Invalid price value: {}; Error: {:?}",
+                entry.price_in_millicents, e
+            ),
+        };
 
         html! {
             <table class="mb-4">
                 <tr style={tr_style}><td style={left_style}>{"Person"}</td><td>{&entry.buyer}</td></tr>
-                <tr style={tr_style}><td style={left_style}>{"Price"}</td><td>{format!("{:.2}\u{00a0}€", price_in_euros)}</td></tr>
+                <tr style={tr_style}><td style={left_style}>{"Price"}</td><td>{price_str}</td></tr>
                 <tr style={tr_style}><td style={left_style}>{"Food"}</td><td>{&entry.food}</td></tr>
                 <tr style={tr_style}>
                     <td style={left_style}>{"Paid"}</td>
