@@ -245,11 +245,6 @@ pub fn order_summary_props(props: &OrderSummaryProps) -> Html {
             html! {
                 <div>
                     <p>{food}{"("}{order_entries.len()}{")"}</p>
-                    <ul>
-                        {order_entries.iter().map(|order_entry| html! {
-                            <li>{format!("{}", order_entry.buyer)}</li>
-                        }).collect::<Vec<_>>()}
-                    </ul>
                 </div>
             }
         })
