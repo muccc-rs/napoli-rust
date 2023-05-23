@@ -57,4 +57,7 @@ service OrderService {
     rpc AddOrderEntry (AddOrderEntryRequest) returns (SingleOrderReply);
     rpc RemoveOrderEntry (OrderEntryRequest) returns (SingleOrderReply);
     rpc SetOrderEntryPaid (SetOrderEntryPaidRequest) returns (SingleOrderReply);
+
+    // Live Updates
+    rpc StreamOrderUpdates (GetOrderRequest) returns (stream SingleOrderReply);
 }

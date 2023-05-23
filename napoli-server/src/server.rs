@@ -1,8 +1,15 @@
+use futures::lock::Mutex;
+use futures::Stream;
 use napoli_lib::napoli::order_service_server::OrderService;
 use napoli_lib::napoli::{
     AddOrderEntryRequest, CreateOrderRequest, GetOrderRequest, GetOrdersReply, GetOrdersRequest,
     OrderEntryRequest, SetOrderEntryPaidRequest, SingleOrderReply, UpdateOrderStateRequest,
 };
+use std::collections;
+use std::pin::Pin;
+use std::sync::Arc;
+use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
 
 use napoli_server_persistent_entities::order;
 use napoli_server_persistent_entities::order_entry;
@@ -16,10 +23,47 @@ use crate::model_adapters::{self, get_order_entry_from_add_request};
 
 pub struct NapoliServer {
     db_handle: DatabaseConnection,
+    // TODO Clean up TXs that are no longer used
+    pub active_order_update_streams: Arc<Mutex<collections::BTreeMap<i32, Vec<OrderSender>>>>,
 }
+
+type GRPCResultResponse<T> = Result<Response<T>, Status>;
+type GRPCReplyResult<T> = Result<T, Status>;
+type OrderSender = mpsc::Sender<GRPCReplyResult<SingleOrderReply>>;
+type OrderUpdateStream = Pin<Box<dyn Stream<Item = GRPCReplyResult<SingleOrderReply>> + Send>>;
 
 #[tonic::async_trait]
 impl OrderService for NapoliServer {
+    type StreamOrderUpdatesStream = OrderUpdateStream;
+
+    async fn stream_order_updates(
+        &self,
+        req: tonic::Request<GetOrderRequest>,
+    ) -> GRPCResultResponse<Self::StreamOrderUpdatesStream> {
+        /*
+           A stream is a basically a future that is fulfilled several times.
+           This function is supposed to return a stream that represents the updates of the requested order.
+
+           We create a new channel for each stream request that is stored in a hashmap
+           and can be accessed by the order id (thus pushed updates to).
+        */
+        println!("stream_order_updates: Got a request: {:?}", req);
+        let order_id = req.into_inner().order_id;
+
+        let (tx, rx) = mpsc::channel(128);
+        self.active_order_update_streams
+            .lock()
+            .await
+            .entry(order_id)
+            .or_default()
+            .push(tx);
+
+        let output_stream = ReceiverStream::new(rx);
+        Ok(Response::new(
+            Box::pin(output_stream) as Self::StreamOrderUpdatesStream
+        ))
+    }
+
     async fn get_orders(
         &self,
         request: Request<GetOrdersRequest>,
@@ -139,6 +183,7 @@ impl OrderService for NapoliServer {
             .one(&self.db_handle)
             .await
             .map_err(|err| Status::internal(err.to_string()))?;
+
         match order {
             None => Err(Status::internal("Order disappeared")),
             Some(order) => {
@@ -148,6 +193,9 @@ impl OrderService for NapoliServer {
                     .await
                     .map_err(|err| Status::internal(err.to_string()))?;
                 let order = model_adapters::make_single_order_reply(order, order_entries);
+
+                self.notify_order_changed(&order.order.as_ref().unwrap())
+                    .await;
                 Ok(Response::new(order))
             }
         }
@@ -179,12 +227,10 @@ impl OrderService for NapoliServer {
             .await
             .map_err(map_to_status)?;
 
-        Ok(Response::new(SingleOrderReply {
-            order: Some(model_adapters::database_order_to_tonic_order(
-                order,
-                entries.into_iter(),
-            )),
-        }))
+        let order = model_adapters::database_order_to_tonic_order(order, entries.into_iter());
+        self.notify_order_changed(&order).await;
+
+        Ok(Response::new(SingleOrderReply { order: Some(order) }))
     }
 
     async fn remove_order_entry(
@@ -209,12 +255,10 @@ impl OrderService for NapoliServer {
             None => return Err(Status::not_found("order not found")),
         };
 
-        Ok(Response::new(SingleOrderReply {
-            order: Some(model_adapters::database_order_to_tonic_order(
-                order,
-                entries.into_iter(),
-            )),
-        }))
+        let order = model_adapters::database_order_to_tonic_order(order, entries.into_iter());
+        self.notify_order_changed(&order).await;
+
+        Ok(Response::new(SingleOrderReply { order: Some(order) }))
     }
 
     async fn set_order_entry_paid(
@@ -252,17 +296,49 @@ impl OrderService for NapoliServer {
             None => return Err(Status::not_found("order not found")),
         };
 
-        Ok(Response::new(SingleOrderReply {
-            order: Some(model_adapters::database_order_to_tonic_order(
-                order,
-                entries.into_iter(),
-            )),
-        }))
+        let order = model_adapters::database_order_to_tonic_order(order, entries.into_iter());
+        self.notify_order_changed(&order).await;
+
+        Ok(Response::new(SingleOrderReply { order: Some(order) }))
     }
 }
 
 impl NapoliServer {
     pub fn with_connection(db_handle: DatabaseConnection) -> Self {
-        NapoliServer { db_handle }
+        NapoliServer {
+            db_handle,
+            active_order_update_streams: Default::default(),
+        }
     }
+
+    async fn notify_order_changed(&self, order: &napoli_lib::napoli::Order) {
+        let mut streams = self.active_order_update_streams.lock().await;
+        if let Some(streams) = streams.get_mut(&order.id) {
+            for stream in streams.iter_mut() {
+                stream
+                    .send(Ok(SingleOrderReply {
+                        order: Some(order.clone()),
+                    }))
+                    .await
+                    .ok();
+            }
+        }
+    }
+}
+
+pub async fn garbage_collect_update_streams(
+    order_update_streams: &Mutex<collections::BTreeMap<i32, Vec<OrderSender>>>,
+) {
+    println!("Garbage collecting napoli_server");
+    let mut streams = order_update_streams.lock().await;
+    for e in streams.values_mut() {
+        e.retain(|e| {
+            let should_retain = !e.is_closed();
+            if !should_retain {
+                println!("Removed item: {:?}", e);
+            }
+            should_retain
+        });
+    }
+    streams.retain(|_k, v| !v.is_empty());
 }

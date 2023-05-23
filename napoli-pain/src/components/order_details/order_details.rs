@@ -3,7 +3,7 @@ use crate::{
     router::Route,
     service::{self},
 };
-
+use futures::StreamExt;
 use napoli_lib::napoli::{self as npb, ObjectId};
 use yew::prelude::*;
 use yew_router::prelude::Link;
@@ -24,6 +24,9 @@ pub enum OrderDetailsMsg {
     AddOrderEntry(npb::AddOrderEntryRequest),
     SetOrderEntryPaid { entry_id: ObjectId, paid: bool },
     RemoveOrderEntry { entry_id: ObjectId },
+
+    StreamingConnected(tonic::Streaming<npb::SingleOrderReply>),
+    GotStreamingOrderUpdate(npb::Order),
 }
 
 impl Component for OrderDetails {
@@ -32,12 +35,20 @@ impl Component for OrderDetails {
 
     fn create(ctx: &Context<Self>) -> Self {
         let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
+
         ctx.link().send_future(async move {
             match svc.get_orders().await {
                 Ok(orders) => Self::Message::GotOrders(orders),
                 Err(e) => Self::Message::OrderFetchFailed(e),
             }
         });
+
+        let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
+        let id = ctx.props().id;
+        ctx.link().send_future(async move {
+            Self::Message::StreamingConnected(svc.stream_order_updates(id).await)
+        });
+
         Self { order: None }
     }
 
@@ -45,6 +56,10 @@ impl Component for OrderDetails {
         match msg {
             Self::Message::GotOrders(o) => {
                 self.order = o.into_iter().find(|order| order.id == ctx.props().id);
+                true
+            }
+            Self::Message::GotStreamingOrderUpdate(o) => {
+                self.order = Some(o);
                 true
             }
             Self::Message::OrderFetchFailed(_e) => false,
@@ -89,6 +104,14 @@ impl Component for OrderDetails {
             Self::Message::GotOrderUpdated(order) => {
                 self.order = Some(order);
                 true
+            }
+            Self::Message::StreamingConnected(stream) => {
+                ctx.link()
+                    .send_stream(stream.map(|single_order_reply_result| {
+                        let o: npb::Order = single_order_reply_result.ok().unwrap().order.unwrap();
+                        Self::Message::GotStreamingOrderUpdate(o)
+                    }));
+                false
             }
         }
     }

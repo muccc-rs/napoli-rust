@@ -1,8 +1,8 @@
 use tonic_web_wasm_client::Client;
 use yew::prelude::*;
 
-use napoli_lib::napoli::order_service_client as npb_grpc;
 use napoli_lib::napoli::{self as npb, ObjectId};
+use napoli_lib::napoli::{order_service_client as npb_grpc, GetOrderRequest};
 
 #[derive(Debug, Clone)]
 pub struct ServiceError(String);
@@ -78,5 +78,17 @@ impl Napoli {
     ) -> Result<npb::Order> {
         let order = self.client.remove_order_entry(request).await?;
         Ok(order.into_inner().order.expect("fucked up"))
+    }
+
+    pub async fn stream_order_updates(
+        &mut self,
+        order_id: i32,
+    ) -> tonic::Streaming<npb::SingleOrderReply> {
+        let request = GetOrderRequest { order_id };
+        self.client
+            .stream_order_updates(request)
+            .await
+            .unwrap()
+            .into_inner()
     }
 }
