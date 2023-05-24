@@ -1,10 +1,13 @@
 use crate::{
     components::order_details::add_order_entry_form::AddOrderEntryForm,
+    components::order_details::live_streaming_indicator::{
+        LiveStreamingStatus, StreamingIndicator,
+    },
     router::Route,
     service::{self},
 };
 use futures::StreamExt;
-use napoli_lib::napoli::{self as npb, ObjectId};
+use napoli_lib::napoli::{self as npb, ObjectId, SingleOrderReply};
 use yew::prelude::*;
 use yew_router::prelude::Link;
 
@@ -15,6 +18,7 @@ pub struct OrderDetailsProps {
 
 pub struct OrderDetails {
     order: Option<npb::Order>,
+    live_streaming_status: LiveStreamingStatus,
 }
 
 pub enum OrderDetailsMsg {
@@ -27,6 +31,7 @@ pub enum OrderDetailsMsg {
 
     StreamingConnected(tonic::Streaming<npb::SingleOrderReply>),
     GotStreamingOrderUpdate(npb::Order),
+    StreamingFailed(service::ServiceError),
 }
 
 impl Component for OrderDetails {
@@ -46,10 +51,17 @@ impl Component for OrderDetails {
         let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
         let id = ctx.props().id;
         ctx.link().send_future(async move {
-            Self::Message::StreamingConnected(svc.stream_order_updates(id).await)
+            let res = svc.stream_order_updates(id).await;
+            match res {
+                Ok(stream) => Self::Message::StreamingConnected(stream),
+                Err(e) => Self::Message::StreamingFailed(e),
+            }
         });
 
-        Self { order: None }
+        Self {
+            order: None,
+            live_streaming_status: LiveStreamingStatus::Connecting,
+        }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
@@ -106,12 +118,29 @@ impl Component for OrderDetails {
                 true
             }
             Self::Message::StreamingConnected(stream) => {
+                self.live_streaming_status = LiveStreamingStatus::Connected;
                 ctx.link()
                     .send_stream(stream.map(|single_order_reply_result| {
-                        let o: npb::Order = single_order_reply_result.ok().unwrap().order.unwrap();
-                        Self::Message::GotStreamingOrderUpdate(o)
+                        match single_order_reply_result {
+                            Ok(SingleOrderReply { order: Some(o) }) => {
+                                return Self::Message::GotStreamingOrderUpdate(o);
+                            }
+                            Ok(SingleOrderReply { order: None }) => Self::Message::StreamingFailed(
+                                service::ServiceError::from("Got empty order"),
+                            ),
+                            Err(e) => {
+                                println!("Error in stream: {:?}", e);
+                                return Self::Message::StreamingFailed(
+                                    service::ServiceError::from(e),
+                                );
+                            }
+                        }
                     }));
-                false
+                true
+            }
+            Self::Message::StreamingFailed(e) => {
+                self.live_streaming_status = LiveStreamingStatus::Error(format!("{:?}", e));
+                true
             }
         }
     }
@@ -159,6 +188,7 @@ impl Component for OrderDetails {
                     </ul>
                     <AddOrderEntryForm order_id={order.id} onclick={on_add_new_order_request} />
                     <OrderSummary order_entries={order.entries.clone()} />
+                    <StreamingIndicator status={self.live_streaming_status.clone()} />
                 </div>
             }
         } else {
