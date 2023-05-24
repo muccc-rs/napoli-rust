@@ -1,10 +1,6 @@
 use futures::lock::Mutex;
 use futures::Stream;
-use napoli_lib::napoli::order_service_server::OrderService;
-use napoli_lib::napoli::{
-    AddOrderEntryRequest, CreateOrderRequest, GetOrderRequest, GetOrdersReply, GetOrdersRequest,
-    OrderEntryRequest, SetOrderEntryPaidRequest, SingleOrderReply, UpdateOrderStateRequest,
-};
+use napoli_lib::napoli as npb;
 use std::collections;
 use std::pin::Pin;
 use std::sync::Arc;
@@ -23,22 +19,21 @@ use crate::model_adapters::{self, get_order_entry_from_add_request};
 
 pub struct NapoliServer {
     db_handle: DatabaseConnection,
-    // TODO Clean up TXs that are no longer used
     pub active_order_update_streams: Arc<Mutex<collections::BTreeMap<i32, Vec<OrderSender>>>>,
 }
 
 type GRPCResultResponse<T> = Result<Response<T>, Status>;
 type GRPCReplyResult<T> = Result<T, Status>;
-type OrderSender = mpsc::Sender<GRPCReplyResult<SingleOrderReply>>;
-type OrderUpdateStream = Pin<Box<dyn Stream<Item = GRPCReplyResult<SingleOrderReply>> + Send>>;
+type OrderSender = mpsc::Sender<GRPCReplyResult<npb::SingleOrderReply>>;
+type OrderUpdateStream = Pin<Box<dyn Stream<Item = GRPCReplyResult<npb::SingleOrderReply>> + Send>>;
 
 #[tonic::async_trait]
-impl OrderService for NapoliServer {
+impl npb::order_service_server::OrderService for NapoliServer {
     type StreamOrderUpdatesStream = OrderUpdateStream;
 
     async fn stream_order_updates(
         &self,
-        req: tonic::Request<GetOrderRequest>,
+        req: tonic::Request<npb::GetOrderRequest>,
     ) -> GRPCResultResponse<Self::StreamOrderUpdatesStream> {
         /*
            A stream is a basically a future that is fulfilled several times.
@@ -66,8 +61,8 @@ impl OrderService for NapoliServer {
 
     async fn get_orders(
         &self,
-        request: Request<GetOrdersRequest>,
-    ) -> Result<Response<GetOrdersReply>, Status> {
+        request: Request<npb::GetOrdersRequest>,
+    ) -> Result<Response<npb::GetOrdersReply>, Status> {
         println!("Got a request: {:?}", request);
 
         let orders_query = order::Entity::find()
@@ -95,13 +90,13 @@ impl OrderService for NapoliServer {
             })
             .collect();
 
-        Ok(Response::new(GetOrdersReply { orders }))
+        Ok(Response::new(npb::GetOrdersReply { orders }))
     }
 
     async fn get_order(
         &self,
-        request: Request<GetOrderRequest>,
-    ) -> Result<Response<SingleOrderReply>, Status> {
+        request: Request<npb::GetOrderRequest>,
+    ) -> Result<Response<npb::SingleOrderReply>, Status> {
         let order_id = request.into_inner().order_id;
         let orders = order::Entity::find_by_id(order_id)
             .find_with_related(order_entry::Entity)
@@ -114,7 +109,7 @@ impl OrderService for NapoliServer {
             None => return Err(Status::not_found("order not found")),
         };
 
-        Ok(Response::new(SingleOrderReply {
+        Ok(Response::new(npb::SingleOrderReply {
             order: Some(model_adapters::database_order_to_tonic_order(
                 order,
                 entries.into_iter(),
@@ -124,8 +119,8 @@ impl OrderService for NapoliServer {
 
     async fn create_order(
         &self,
-        request: tonic::Request<CreateOrderRequest>,
-    ) -> Result<Response<SingleOrderReply>, Status> {
+        request: tonic::Request<npb::CreateOrderRequest>,
+    ) -> Result<Response<npb::SingleOrderReply>, Status> {
         let order = match model_adapters::get_order_from_create_request(request.into_inner()) {
             Some(order) => order,
             None => return Err(Status::internal("no order non")),
@@ -147,8 +142,8 @@ impl OrderService for NapoliServer {
 
     async fn add_order_entry(
         &self,
-        request: tonic::Request<AddOrderEntryRequest>,
-    ) -> Result<Response<SingleOrderReply>, Status> {
+        request: tonic::Request<npb::AddOrderEntryRequest>,
+    ) -> Result<Response<npb::SingleOrderReply>, Status> {
         let request = request.into_inner();
 
         let order = napoli_server_persistent_entities::order::Entity::find_by_id(
@@ -203,8 +198,8 @@ impl OrderService for NapoliServer {
 
     async fn update_order_state(
         &self,
-        request: Request<UpdateOrderStateRequest>,
-    ) -> Result<Response<SingleOrderReply>, Status> {
+        request: Request<npb::UpdateOrderStateRequest>,
+    ) -> Result<Response<npb::SingleOrderReply>, Status> {
         let request = request.into_inner();
         let order_id = request.order_id.to_owned();
         let orders = order::Entity::find_by_id(order_id)
@@ -230,13 +225,13 @@ impl OrderService for NapoliServer {
         let order = model_adapters::database_order_to_tonic_order(order, entries.into_iter());
         self.notify_order_changed(&order).await;
 
-        Ok(Response::new(SingleOrderReply { order: Some(order) }))
+        Ok(Response::new(npb::SingleOrderReply { order: Some(order) }))
     }
 
     async fn remove_order_entry(
         &self,
-        request: Request<OrderEntryRequest>,
-    ) -> Result<Response<SingleOrderReply>, Status> {
+        request: Request<npb::OrderEntryRequest>,
+    ) -> Result<Response<npb::SingleOrderReply>, Status> {
         let request = request.into_inner();
 
         let _order_entry = order_entry::Entity::delete_by_id(request.order_entry_id)
@@ -258,13 +253,13 @@ impl OrderService for NapoliServer {
         let order = model_adapters::database_order_to_tonic_order(order, entries.into_iter());
         self.notify_order_changed(&order).await;
 
-        Ok(Response::new(SingleOrderReply { order: Some(order) }))
+        Ok(Response::new(npb::SingleOrderReply { order: Some(order) }))
     }
 
     async fn set_order_entry_paid(
         &self,
-        request: Request<SetOrderEntryPaidRequest>,
-    ) -> Result<Response<SingleOrderReply>, Status> {
+        request: Request<npb::SetOrderEntryPaidRequest>,
+    ) -> Result<Response<npb::SingleOrderReply>, Status> {
         let request = request.into_inner();
 
         let order_entry = order_entry::Entity::find_by_id(request.order_entry_id)
@@ -299,7 +294,7 @@ impl OrderService for NapoliServer {
         let order = model_adapters::database_order_to_tonic_order(order, entries.into_iter());
         self.notify_order_changed(&order).await;
 
-        Ok(Response::new(SingleOrderReply { order: Some(order) }))
+        Ok(Response::new(npb::SingleOrderReply { order: Some(order) }))
     }
 }
 
@@ -316,7 +311,7 @@ impl NapoliServer {
         if let Some(streams) = streams.get_mut(&order.id) {
             for stream in streams.iter_mut() {
                 stream
-                    .send(Ok(SingleOrderReply {
+                    .send(Ok(npb::SingleOrderReply {
                         order: Some(order.clone()),
                     }))
                     .await
