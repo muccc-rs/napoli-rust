@@ -8,7 +8,7 @@ use napoli_server_migrations::{Migrator, MigratorTrait};
 use tonic_web::GrpcWebLayer;
 use tower_http::cors;
 
-use crate::server::{garbage_collect_update_streams, NapoliServer};
+use crate::server::NapoliServer;
 
 use clap::Parser;
 
@@ -43,8 +43,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("NapoliServer listening on {}", addr);
     let napoli_server = NapoliServer::with_connection(db);
 
-    let subs = napoli_server.active_order_update_streams.clone();
-
     let order_service_server = OrderServiceServer::new(napoli_server);
     let reflection = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(FILE_DESCRIPTOR_SET)
@@ -55,15 +53,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .allow_headers(cors::Any)
         .allow_methods([http::Method::POST])
         .allow_origin(cors::Any);
-
-    // Garbage collect napoli_server with a tokio timer
-    tokio::spawn(async move {
-        let mut interval = tokio::time::interval(std::time::Duration::from_secs(args.gc_delay));
-        loop {
-            interval.tick().await;
-            garbage_collect_update_streams(&subs).await;
-        }
-    });
 
     tonic::transport::Server::builder()
         .accept_http1(true)

@@ -4,8 +4,6 @@ use napoli_lib::napoli as npb;
 use std::collections;
 use std::pin::Pin;
 use std::sync::Arc;
-use tokio::sync::mpsc;
-use tokio_stream::wrappers::ReceiverStream;
 
 use napoli_server_persistent_entities::order;
 use napoli_server_persistent_entities::order_entry;
@@ -19,41 +17,42 @@ use crate::model_adapters::{self, get_order_entry_from_add_request};
 
 pub struct NapoliServer {
     db_handle: DatabaseConnection,
-    pub active_order_update_streams: Arc<Mutex<collections::BTreeMap<i32, Vec<OrderSender>>>>,
+    pub active_order_update_senders: Arc<Mutex<collections::BTreeMap<i32, OrderSender>>>,
 }
 
-type GRPCResultResponse<T> = Result<Response<T>, Status>;
-type GRPCReplyResult<T> = Result<T, Status>;
-type OrderSender = mpsc::Sender<GRPCReplyResult<npb::SingleOrderReply>>;
-type OrderUpdateStream = Pin<Box<dyn Stream<Item = GRPCReplyResult<npb::SingleOrderReply>> + Send>>;
+type OrderSender = tokio::sync::watch::Sender<tonic::Result<npb::SingleOrderReply>>;
 
 #[tonic::async_trait]
 impl npb::order_service_server::OrderService for NapoliServer {
-    type StreamOrderUpdatesStream = OrderUpdateStream;
+    type StreamOrderUpdatesStream =
+        Pin<Box<dyn Stream<Item = tonic::Result<npb::SingleOrderReply>> + Send>>;
 
     async fn stream_order_updates(
         &self,
         req: tonic::Request<npb::GetOrderRequest>,
-    ) -> GRPCResultResponse<Self::StreamOrderUpdatesStream> {
-        /*
-           A stream is a basically a future that is fulfilled several times.
-           This function is supposed to return a stream that represents the updates of the requested order.
-
-           We create a new channel for each stream request that is stored in a hashmap
-           and can be accessed by the order id (thus pushed updates to).
-        */
+    ) -> tonic::Result<tonic::Response<Self::StreamOrderUpdatesStream>> {
         println!("stream_order_updates: Got a request: {:?}", req);
         let order_id = req.into_inner().order_id;
 
-        let (tx, rx) = mpsc::channel(128);
-        self.active_order_update_streams
-            .lock()
-            .await
-            .entry(order_id)
-            .or_default()
-            .push(tx);
+        let initial_order = self
+            .get_order(tonic::Request::new(npb::GetOrderRequest { order_id }))
+            .await?
+            .into_inner();
 
-        let output_stream = ReceiverStream::new(rx);
+        let mut sender_mutex = self.active_order_update_senders.lock().await;
+        let sender = sender_mutex.entry(order_id);
+
+        let rx = match sender {
+            collections::btree_map::Entry::Occupied(entry) => entry.get().subscribe(),
+            collections::btree_map::Entry::Vacant(entry) => {
+                let (tx, rx) = tokio::sync::watch::channel(Ok(initial_order));
+                entry.insert(tx);
+                rx
+            }
+        };
+
+        let output_stream = tokio_stream::wrappers::WatchStream::new(rx);
+
         Ok(Response::new(
             Box::pin(output_stream) as Self::StreamOrderUpdatesStream
         ))
@@ -302,38 +301,18 @@ impl NapoliServer {
     pub fn with_connection(db_handle: DatabaseConnection) -> Self {
         NapoliServer {
             db_handle,
-            active_order_update_streams: Default::default(),
+            active_order_update_senders: Default::default(),
         }
     }
 
     async fn notify_order_changed(&self, order: &napoli_lib::napoli::Order) {
-        let mut streams = self.active_order_update_streams.lock().await;
-        if let Some(streams) = streams.get_mut(&order.id) {
-            for stream in streams.iter_mut() {
-                stream
-                    .send(Ok(npb::SingleOrderReply {
-                        order: Some(order.clone()),
-                    }))
-                    .await
-                    .ok();
-            }
+        let mut senders = self.active_order_update_senders.lock().await;
+        if let Some(sender) = senders.get_mut(&order.id) {
+            sender
+                .send(Ok(npb::SingleOrderReply {
+                    order: Some(order.clone()),
+                }))
+                .ok();
         }
     }
-}
-
-pub async fn garbage_collect_update_streams(
-    order_update_streams: &Mutex<collections::BTreeMap<i32, Vec<OrderSender>>>,
-) {
-    println!("Garbage collecting napoli_server");
-    let mut streams = order_update_streams.lock().await;
-    for e in streams.values_mut() {
-        e.retain(|e| {
-            let should_retain = !e.is_closed();
-            if !should_retain {
-                println!("Removed item: {:?}", e);
-            }
-            should_retain
-        });
-    }
-    streams.retain(|_k, v| !v.is_empty());
 }
