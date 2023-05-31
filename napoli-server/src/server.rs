@@ -39,10 +39,8 @@ impl npb::order_service_server::OrderService for NapoliServer {
             .await?
             .into_inner();
 
-        let mut sender_mutex = self.active_order_update_senders.lock().await;
-        let sender = sender_mutex.entry(order_id);
-
-        let rx = match sender {
+        let mut senders = self.active_order_update_senders.lock().await;
+        let rx = match senders.entry(order_id) {
             collections::btree_map::Entry::Occupied(entry) => entry.get().subscribe(),
             collections::btree_map::Entry::Vacant(entry) => {
                 let (tx, rx) = tokio::sync::watch::channel(Ok(initial_order));
