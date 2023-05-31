@@ -12,19 +12,17 @@ pub struct StreamingIndicatorProps {
 
 #[yew::function_component(StreamingIndicator)]
 pub fn streaming_indicator(props: &StreamingIndicatorProps) -> yew::Html {
-    let (dot, message, hover) = match &props.status {
-        LiveStreamingStatus::Error(msg) => (
-            "🔴",
-            "Live updates inactive".to_string(),
-            Some(format!("Error: {}", msg)),
-        ),
-        LiveStreamingStatus::Connecting => ("🟡", "Live updates connecting".to_string(), None),
-        LiveStreamingStatus::Connected => ("🟢", "Live updates active".to_string(), None),
+    let (status_symbol, status_message, hover_text) = match &props.status {
+        LiveStreamingStatus::Error(msg) => {
+            ("🔴", "Live updates inactive", format!("Error: {}", msg))
+        }
+        LiveStreamingStatus::Connecting => ("🟡", "Live updates connecting", String::new()),
+        LiveStreamingStatus::Connected => ("🟢", "Live updates active", String::new()),
     };
 
     yew::html!(
-        <div class="fixed top-4 right-4" title={hover.unwrap_or(String::new())}>
-            {message}{" "}{dot}
+        <div class="fixed top-4 right-4" title={hover_text}>
+            {status_message}{" "}{status_symbol}
         </div>
     )
 }
