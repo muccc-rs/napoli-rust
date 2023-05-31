@@ -10,7 +10,6 @@ env:
   CARGO_TERM_COLOR: always
   release_name: build_${{github.run_number}}
   # an=artifact_name
-  an_napoli_server: napoli-server-linux-x64
   an_napoli_pain: napoli-pain-wasm.tar.gz
 
 
@@ -45,24 +44,12 @@ jobs:
         tar -czvf ${{ env.an_napoli_pain }} dist/
       env:
         BACKEND_URL: ${{ vars.BACKEND_URL }}
-    - name: Build release for ${{ env.an_napoli_server }}
-      run: |
-        rustup target add x86_64-unknown-linux-gnu
-        cargo build --release --bin napoli-server --target x86_64-unknown-linux-gnu
-    - name: Upload ${{ env.an_napoli_server }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ env.an_napoli_server }}
-        path: target/x86_64-unknown-linux-gnu/release/napoli-server
-        retention-days: 5
     - name: Upload ${{ env.an_napoli_pain }}
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.an_napoli_pain }}
         path: napoli-pain/${{ env.an_napoli_pain }}
         retention-days: 5
-    - name: Print directory content
-      run: ls -R
 
   release:
     needs: build
@@ -77,7 +64,6 @@ jobs:
       - name: 'Create Release'
         shell: bash
         run: |
-          mv artifacts/${{ env.an_napoli_server }}/napoli-server artifacts/${{ env.an_napoli_server }}/${{ env.an_napoli_server }}
-          hub release create ${{ env.release_name }} -m ${{ env.release_name }} -a artifacts/${{ env.an_napoli_server }}/${{ env.an_napoli_server }} -a artifacts/${{ env.an_napoli_pain }}/${{ env.an_napoli_pain }}
+          hub release create ${{ env.release_name }} -m ${{ env.release_name }} -a artifacts/${{ env.an_napoli_pain }}/${{ env.an_napoli_pain }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
