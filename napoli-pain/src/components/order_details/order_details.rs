@@ -129,7 +129,6 @@ impl Component for OrderDetails {
                                 service::ServiceError::from("Got empty order"),
                             ),
                             Err(e) => {
-                                println!("Error in stream: {:?}", e);
                                 return Self::Message::StreamingFailed(
                                     service::ServiceError::from(e),
                                 );
