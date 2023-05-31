@@ -18,8 +18,6 @@ struct Arguments {
     bind_addr: String,
     #[clap(short, long, default_value = "napoli.sqlite")]
     sqlite_file_name: String,
-    #[clap(short, long, default_value = "60")]
-    gc_delay: u64,
 }
 
 #[tokio::main]
