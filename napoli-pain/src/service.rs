@@ -64,7 +64,7 @@ impl Napoli {
     pub async fn create_order(&mut self, menu_url: String) -> Result<npb::Order> {
         let order = self
             .client
-            .create_order(npb::CreateOrderRequest { menu_url: menu_url })
+            .create_order(npb::CreateOrderRequest { menu_url })
             .await?;
         Ok(order.into_inner().order.expect("fucked up"))
     }

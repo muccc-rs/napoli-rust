@@ -186,7 +186,7 @@ impl npb::order_service_server::OrderService for NapoliServer {
                     .map_err(|err| Status::internal(err.to_string()))?;
                 let order = model_adapters::make_single_order_reply(order, order_entries);
 
-                self.notify_order_changed(&order.order.as_ref().unwrap())
+                self.notify_order_changed(order.order.as_ref().unwrap())
                     .await;
                 Ok(Response::new(order))
             }

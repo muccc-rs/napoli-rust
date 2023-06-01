@@ -2,7 +2,7 @@ use crate::{components::new_order_form::NewOrderForm, service};
 use napoli_lib::napoli as npb;
 use yew::prelude::*;
 
-use crate::components::order_list::order_list::OrderList;
+use crate::components::order_list::OrderList;
 
 pub enum Msg {
     GotOrders(Vec<npb::Order>),
@@ -75,7 +75,7 @@ impl Component for Homepage {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let on_create_new_order = ctx.link().callback(|menu_url| Msg::AddOrder(menu_url));
+        let on_create_new_order = ctx.link().callback(Msg::AddOrder);
 
         match &self.orders {
             FetchOrdersState::Fetching => html! {

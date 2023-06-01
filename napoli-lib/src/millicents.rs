@@ -45,7 +45,7 @@ impl Millicents {
     }
 
     pub fn is_zero(&self) -> bool {
-        return self.0 == 0;
+        self.0 == 0
     }
 
     fn millicents_to_euro(mc: i64) -> (i64, i64) {

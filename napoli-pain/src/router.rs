@@ -1,5 +1,5 @@
 use crate::components::homepage::Homepage;
-use crate::components::order_details::order_details::OrderDetails;
+use crate::components::order_details::OrderDetails;
 use crate::components::server_name::ServerName;
 use crate::BACKEND_URL;
 

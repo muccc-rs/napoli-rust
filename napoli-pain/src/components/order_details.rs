@@ -11,6 +11,9 @@ use napoli_lib::napoli::{self as npb, ObjectId, SingleOrderReply};
 use yew::prelude::*;
 use yew_router::prelude::Link;
 
+mod add_order_entry_form;
+mod live_streaming_indicator;
+
 #[derive(PartialEq, Eq, Properties)]
 pub struct OrderDetailsProps {
     pub id: ObjectId,
@@ -123,15 +126,13 @@ impl Component for OrderDetails {
                     .send_stream(stream.map(|single_order_reply_result| {
                         match single_order_reply_result {
                             Ok(SingleOrderReply { order: Some(o) }) => {
-                                return Self::Message::GotStreamingOrderUpdate(o);
+                                Self::Message::GotStreamingOrderUpdate(o)
                             }
                             Ok(SingleOrderReply { order: None }) => Self::Message::StreamingFailed(
                                 service::ServiceError::from("Got empty order"),
                             ),
                             Err(e) => {
-                                return Self::Message::StreamingFailed(
-                                    service::ServiceError::from(e),
-                                );
+                                Self::Message::StreamingFailed(service::ServiceError::from(e))
                             }
                         }
                     }));

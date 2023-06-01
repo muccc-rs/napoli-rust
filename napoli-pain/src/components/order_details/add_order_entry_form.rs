@@ -84,7 +84,7 @@ pub fn add_order_entry_form(props: &AddOrderEntryFormProps) -> Html {
                     disabled={!is_form_valid}
                     value="Add Order Entry"
                     onclick={props.onclick.reform(move |_| napoli_lib::napoli::AddOrderEntryRequest {
-                        order_id: order_id,
+                        order_id,
                         food: food_str.clone(),
                         buyer: buyer_str.clone(),
                         price_deprecated: 0.0,
