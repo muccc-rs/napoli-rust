@@ -40,6 +40,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("NapoliServer listening on {}", addr);
     let napoli_server = NapoliServer::with_connection(db);
+
     let order_service_server = OrderServiceServer::new(napoli_server);
     let reflection = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(FILE_DESCRIPTOR_SET)

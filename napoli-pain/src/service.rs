@@ -1,8 +1,7 @@
 use tonic_web_wasm_client::Client;
 use yew::prelude::*;
 
-use napoli_lib::napoli::order_service_client as npb_grpc;
-use napoli_lib::napoli::{self as npb, ObjectId};
+use napoli_lib::napoli as npb;
 
 #[derive(Debug, Clone)]
 pub struct ServiceError(String);
@@ -21,16 +20,22 @@ impl From<tonic::Status> for ServiceError {
     }
 }
 
+impl From<&str> for ServiceError {
+    fn from(other: &str) -> Self {
+        ServiceError(other.into())
+    }
+}
+
 type Result<T> = std::result::Result<T, ServiceError>;
 
 pub struct Napoli {
-    pub client: npb_grpc::OrderServiceClient<Client>,
+    pub client: npb::order_service_client::OrderServiceClient<Client>,
 }
 
 impl Napoli {
     pub fn new(backend_url: String) -> Self {
         Napoli {
-            client: npb_grpc::OrderServiceClient::new(Client::new(backend_url)),
+            client: npb::order_service_client::OrderServiceClient::new(Client::new(backend_url)),
         }
     }
 
@@ -41,8 +46,8 @@ impl Napoli {
 
     pub async fn set_order_entry_paid(
         &mut self,
-        order_id: ObjectId,
-        order_entry_id: ObjectId,
+        order_id: npb::ObjectId,
+        order_entry_id: npb::ObjectId,
         paid: bool,
     ) -> Result<npb::Order> {
         let order = self
@@ -78,5 +83,14 @@ impl Napoli {
     ) -> Result<npb::Order> {
         let order = self.client.remove_order_entry(request).await?;
         Ok(order.into_inner().order.expect("fucked up"))
+    }
+
+    pub async fn stream_order_updates(
+        &mut self,
+        order_id: i32,
+    ) -> Result<tonic::Streaming<npb::SingleOrderReply>> {
+        let request = npb::GetOrderRequest { order_id };
+        let res = self.client.stream_order_updates(request).await?;
+        Ok(res.into_inner())
     }
 }

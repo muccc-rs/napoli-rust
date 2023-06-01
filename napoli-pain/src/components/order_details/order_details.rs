@@ -1,10 +1,13 @@
 use crate::{
     components::order_details::add_order_entry_form::AddOrderEntryForm,
+    components::order_details::live_streaming_indicator::{
+        LiveStreamingStatus, StreamingIndicator,
+    },
     router::Route,
     service::{self},
 };
-
-use napoli_lib::napoli::{self as npb, ObjectId};
+use futures::StreamExt;
+use napoli_lib::napoli::{self as npb, ObjectId, SingleOrderReply};
 use yew::prelude::*;
 use yew_router::prelude::Link;
 
@@ -15,6 +18,7 @@ pub struct OrderDetailsProps {
 
 pub struct OrderDetails {
     order: Option<npb::Order>,
+    live_streaming_status: LiveStreamingStatus,
 }
 
 pub enum OrderDetailsMsg {
@@ -24,6 +28,10 @@ pub enum OrderDetailsMsg {
     AddOrderEntry(npb::AddOrderEntryRequest),
     SetOrderEntryPaid { entry_id: ObjectId, paid: bool },
     RemoveOrderEntry { entry_id: ObjectId },
+
+    StreamingConnected(tonic::Streaming<npb::SingleOrderReply>),
+    GotStreamingOrderUpdate(npb::Order),
+    StreamingFailed(service::ServiceError),
 }
 
 impl Component for OrderDetails {
@@ -32,19 +40,38 @@ impl Component for OrderDetails {
 
     fn create(ctx: &Context<Self>) -> Self {
         let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
+
         ctx.link().send_future(async move {
             match svc.get_orders().await {
                 Ok(orders) => Self::Message::GotOrders(orders),
                 Err(e) => Self::Message::OrderFetchFailed(e),
             }
         });
-        Self { order: None }
+
+        let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
+        let id = ctx.props().id;
+        ctx.link().send_future(async move {
+            let res = svc.stream_order_updates(id).await;
+            match res {
+                Ok(stream) => Self::Message::StreamingConnected(stream),
+                Err(e) => Self::Message::StreamingFailed(e),
+            }
+        });
+
+        Self {
+            order: None,
+            live_streaming_status: LiveStreamingStatus::Connecting,
+        }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Self::Message::GotOrders(o) => {
                 self.order = o.into_iter().find(|order| order.id == ctx.props().id);
+                true
+            }
+            Self::Message::GotStreamingOrderUpdate(o) => {
+                self.order = Some(o);
                 true
             }
             Self::Message::OrderFetchFailed(_e) => false,
@@ -88,6 +115,30 @@ impl Component for OrderDetails {
             }
             Self::Message::GotOrderUpdated(order) => {
                 self.order = Some(order);
+                true
+            }
+            Self::Message::StreamingConnected(stream) => {
+                self.live_streaming_status = LiveStreamingStatus::Connected;
+                ctx.link()
+                    .send_stream(stream.map(|single_order_reply_result| {
+                        match single_order_reply_result {
+                            Ok(SingleOrderReply { order: Some(o) }) => {
+                                return Self::Message::GotStreamingOrderUpdate(o);
+                            }
+                            Ok(SingleOrderReply { order: None }) => Self::Message::StreamingFailed(
+                                service::ServiceError::from("Got empty order"),
+                            ),
+                            Err(e) => {
+                                return Self::Message::StreamingFailed(
+                                    service::ServiceError::from(e),
+                                );
+                            }
+                        }
+                    }));
+                true
+            }
+            Self::Message::StreamingFailed(e) => {
+                self.live_streaming_status = LiveStreamingStatus::Error(format!("{:?}", e));
                 true
             }
         }
@@ -136,6 +187,7 @@ impl Component for OrderDetails {
                     </ul>
                     <AddOrderEntryForm order_id={order.id} onclick={on_add_new_order_request} />
                     <OrderSummary order_entries={order.entries.clone()} />
+                    <StreamingIndicator status={self.live_streaming_status.clone()} />
                 </div>
             }
         } else {

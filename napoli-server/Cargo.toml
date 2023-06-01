@@ -19,6 +19,7 @@ clap = { version = "4.1.4", features = ["derive"] }
 tonic-web = "0.5.0"
 tower-http = "0"
 http = "0"
+tokio-stream = { version = "0.1.14", features = ["sync"] }
 
 # client binary
 [[bin]]
