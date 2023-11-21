@@ -173,6 +173,14 @@ impl Component for OrderDetails {
                     })
                     .collect::<Vec<_>>();
 
+
+            let total: i64 =
+              order
+                  .entries
+                  .iter()
+                  .map(|order| order.price_in_millicents)
+                  .sum();
+
             let id = order.id;
             let menu_url = order.menu_url.clone();
             let menu_url_text = menu_url.clone();
@@ -189,6 +197,7 @@ impl Component for OrderDetails {
                     <AddOrderEntryForm order_id={order.id} onclick={on_add_new_order_request} />
                     <OrderSummary order_entries={order.entries.clone()} />
                     <StreamingIndicator status={self.live_streaming_status.clone()} />
+                    <p>{"Total: "}{total}</p>
                 </div>
             }
         } else {
