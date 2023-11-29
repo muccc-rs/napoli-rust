@@ -2,9 +2,9 @@ name: Rust
 
 on:
   push:
-    branches: [ "canon" ]
+    branches: ["canon"]
   pull_request:
-    branches: [ "canon" ]
+    branches: ["canon"]
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,44 +12,43 @@ env:
   # an=artifact_name
   an_napoli_pain: napoli-pain-wasm.tar.gz
 
-
 jobs:
   build:
     runs-on: ubuntu-22.04
     environment: "build"
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target/
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-    - uses: arduino/setup-protoc@v1
-    - uses: jetli/trunk-action@v0.4.0
-      with:
-        # Optional version of trunk to install(eg. 'v0.16.0', 'latest')
-        version: 'latest'
-    - name: Build All
-      run: cargo build --verbose
-    - name: Run all tests
-      run: cargo test --verbose
-    - name: Build release for ${{ env.an_napoli_pain }}
-      run: |
-        cd napoli-pain
-        trunk build --release index.html
-        tar -czvf ${{ env.an_napoli_pain }} dist/
-      env:
-        BACKEND_URL: ${{ vars.BACKEND_URL }}
-    - name: Upload ${{ env.an_napoli_pain }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ env.an_napoli_pain }}
-        path: napoli-pain/${{ env.an_napoli_pain }}
-        retention-days: 5
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: arduino/setup-protoc@v1
+      - uses: jetli/trunk-action@v0.4.0
+        with:
+          # Optional version of trunk to install(eg. 'v0.16.0', 'latest')
+          version: "latest"
+      - name: Build All
+        run: cargo build --verbose
+      - name: Run all tests
+        run: cargo test --verbose
+      - name: Build release for ${{ env.an_napoli_pain }}
+        run: |
+          cd napoli-pain
+          trunk build --release index.html
+          tar -czvf ${{ env.an_napoli_pain }} dist/
+        env:
+          BACKEND_URL: ${{ vars.BACKEND_URL }}
+      - name: Upload ${{ env.an_napoli_pain }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.an_napoli_pain }}
+          path: napoli-pain/${{ env.an_napoli_pain }}
+          retention-days: 5
 
   release:
     needs: build
@@ -61,9 +60,10 @@ jobs:
         with:
           path: artifacts
 
-      - name: 'Create Release'
+      - name: "Create Release"
         shell: bash
         run: |
+          sudo apt-get update && sudo apt-get install -y hub
           hub release create ${{ env.release_name }} -m ${{ env.release_name }} -a artifacts/${{ env.an_napoli_pain }}/${{ env.an_napoli_pain }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
