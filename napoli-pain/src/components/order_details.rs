@@ -173,6 +173,25 @@ impl Component for OrderDetails {
                     })
                     .collect::<Vec<_>>();
 
+
+            let total_millicents: i64 =
+              order
+                  .entries
+                  .iter()
+                  .map(|order| order.price_in_millicents)
+                  .sum();
+
+            let total_str = match napoli_lib::Millicents::from_raw(total_millicents) {
+                Ok(price) => {
+                    let (euros, cents) = price.to_euro_tuple();
+                    format!("{}.{:02}\u{00a0}€", euros, cents)
+                }
+                Err(e) => format!(
+                    "Invalid price value: {}; Error: {:?}",
+                    total_millicents, e
+                ),
+            };
+
             let id = order.id;
             let menu_url = order.menu_url.clone();
             let menu_url_text = menu_url.clone();
@@ -189,6 +208,7 @@ impl Component for OrderDetails {
                     <AddOrderEntryForm order_id={order.id} onclick={on_add_new_order_request} />
                     <OrderSummary order_entries={order.entries.clone()} />
                     <StreamingIndicator status={self.live_streaming_status.clone()} />
+                    <p>{"Total: "}{total_str}</p>
                 </div>
             }
         } else {
