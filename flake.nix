@@ -47,7 +47,17 @@
             pkgconf
             pkg-config
             protobuf
-          ];
+            mob
+            # JS / CSS management
+            nodejs
+            nodePackages.npm
+            nodePackages.tailwindcss
+          ] ++ (
+            # Apple libraries if necessary
+            lib.optional stdenv.isDarwin [
+              darwin.apple_sdk.frameworks.Security
+            ]
+          );
         };
       }
     );

@@ -1,7 +1,12 @@
+use std::collections::HashMap;
+
 use crate::{
-    components::order_details::add_order_entry_form::AddOrderEntryForm,
-    components::order_details::live_streaming_indicator::{
-        LiveStreamingStatus, StreamingIndicator,
+    components::{
+        order_details::{
+            add_order_entry_form::AddOrderEntryForm,
+            live_streaming_indicator::{LiveStreamingStatus, StreamingIndicator},
+        },
+        server_name::_ServerNameProps::name,
     },
     router::Route,
     service::{self},
@@ -173,23 +178,18 @@ impl Component for OrderDetails {
                     })
                     .collect::<Vec<_>>();
 
-
-            let total_millicents: i64 =
-              order
-                  .entries
-                  .iter()
-                  .map(|order| order.price_in_millicents)
-                  .sum();
+            let total_millicents: i64 = order
+                .entries
+                .iter()
+                .map(|order| order.price_in_millicents)
+                .sum();
 
             let total_str = match napoli_lib::Millicents::from_raw(total_millicents) {
                 Ok(price) => {
                     let (euros, cents) = price.to_euro_tuple();
                     format!("{}.{:02}\u{00a0}€", euros, cents)
                 }
-                Err(e) => format!(
-                    "Invalid price value: {}; Error: {:?}",
-                    total_millicents, e
-                ),
+                Err(e) => format!("Invalid price value: {}; Error: {:?}", total_millicents, e),
             };
 
             let id = order.id;
@@ -299,11 +299,23 @@ pub struct OrderSummaryProps {
     pub order_entries: Vec<npb::OrderEntry>,
 }
 
+pub fn group_by(order_entries: &[npb::OrderEntry]) -> HashMap<String, usize> {
+    let mut group_by = std::collections::HashMap::new();
+
+    for order_entry in order_entries {
+        let food = order_entry.food.clone().to_ascii_lowercase();
+        let group_by_entry = group_by.entry(food).or_insert(0);
+        *group_by_entry += 1;
+    }
+
+    group_by
+}
+
 #[function_component(OrderSummary)]
 pub fn order_summary_props(props: &OrderSummaryProps) -> Html {
+    /*
     // summarize by food name
-
-    let mut food_to_order_entries: std::collections::HashMap<String, Vec<npb::OrderEntry>> =
+    let mut food_to_order_entries: std::collections::HashMap<String, usize> =
         std::collections::HashMap::new();
 
     for order_entry in &props.order_entries {
@@ -311,13 +323,19 @@ pub fn order_summary_props(props: &OrderSummaryProps) -> Html {
         let order_entries = food_to_order_entries.entry(food).or_insert(vec![]);
         order_entries.push(order_entry.clone());
     }
+    */
 
-    let food_to_order_entries_str = food_to_order_entries
+    let mut grouped_entries: Vec<_> = group_by(&props.order_entries).into_iter().collect();
+
+    // call group_by
+    grouped_entries.sort_by(|a, b| human_sort::compare(&a.0, &b.0));
+
+    let food_to_order_entries_str = grouped_entries
         .iter()
-        .map(|(food, order_entries)| {
+        .map(|(food, count)| {
             html! {
                 <div>
-                    <p>{food}{"("}{order_entries.len()}{")"}</p>
+                    <p>{food}{" ("}{count}{")"}</p>
                 </div>
             }
         })

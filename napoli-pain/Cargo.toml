@@ -21,3 +21,4 @@ tonic-web-wasm-client = "0"
 tonic = { version = "0.8.3", default-features = false, features = ["codegen", "prost"] }
 web-sys = "0"
 futures = "0.3.28"
+human-sort = "*"
