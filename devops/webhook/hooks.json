@@ -1,0 +1,31 @@
+[
+    {
+        "id": "deploy-napoli",
+        "execute-command": "/home/user/apps/webhook/deploy-napoli/deploy-napoli.sh",
+        "command-working-directory": "/home/user/dev/napoli-rust",
+        "trigger-rule": {
+            "and": [
+                {
+                    "match": {
+                        "type": "payload-hmac-sha1",
+                        "secret": "",
+                        "parameter": {
+                            "source": "header",
+                            "name": "X-Hub-Signature"
+                        }
+                    }
+                },
+                {
+                    "match": {
+                        "type": "regex",
+                        "value": "refs/tags/build_*",
+                        "parameter": {
+                            "source": "payload",
+                            "name": "ref"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+]
