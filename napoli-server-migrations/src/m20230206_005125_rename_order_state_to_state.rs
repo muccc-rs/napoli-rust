@@ -6,6 +6,7 @@ pub struct Migration;
 #[derive(Iden)]
 enum Order {
     Table,
+    #[allow(clippy::enum_variant_names)]
     OrderState,
     State,
 }

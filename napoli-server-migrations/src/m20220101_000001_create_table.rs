@@ -7,6 +7,7 @@ enum Order {
     Table,
     Id,
     MenuUrl,
+    #[allow(clippy::enum_variant_names)]
     OrderState,
 }
 

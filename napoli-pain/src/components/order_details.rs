@@ -1,12 +1,9 @@
 use std::collections::HashMap;
 
 use crate::{
-    components::{
-        order_details::{
-            add_order_entry_form::AddOrderEntryForm,
-            live_streaming_indicator::{LiveStreamingStatus, StreamingIndicator},
-        },
-        server_name::_ServerNameProps::name,
+    components::order_details::{
+        add_order_entry_form::AddOrderEntryForm,
+        live_streaming_indicator::{LiveStreamingStatus, StreamingIndicator},
     },
     router::Route,
     service::{self},
