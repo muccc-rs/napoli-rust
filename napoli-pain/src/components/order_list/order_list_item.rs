@@ -32,7 +32,7 @@ impl Component for OrderListItem {
                     </Link<Route>>
                 </td></tr>
                 <tr><td class={left_classes}>{"Order Number"}</td><td>{o.id}</td></tr>
-                <tr><td class={left_classes}>{"Menu URL"}</td><td><a class="link" href={ o.menu_url.clone() }>{ o.menu_url.clone() }</a></td></tr>
+                <tr><td class={left_classes}>{"Menu URL"}</td><td><a class="link" target="_blank" rel="noopener noreferrer" href={ o.menu_url.clone() }>{ o.menu_url.clone() }</a></td></tr>
                 <tr><td class={left_classes}>{"# of entries"}</td><td>{o.entries.len()}</td></tr>
             </table>
         }

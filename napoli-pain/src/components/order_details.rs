@@ -197,7 +197,7 @@ impl Component for OrderDetails {
                 <div class="my-8">
                     <Link<Route> to={Route::Home} classes="btn"> {"< Back"} </Link<Route>>
                     <h1 class="mt-8">{"Order #"}{id}</h1>
-                    <p>{"Menu URL: "}<a class="link" href={menu_url}>{menu_url_text}</a></p>
+                    <p>{"Menu URL: "}<a class="link" href={menu_url} target="_blank" rel="noopener noreferrer">{menu_url_text}</a></p>
 
                     <ul class="mt-4">
                     { order_entries }
