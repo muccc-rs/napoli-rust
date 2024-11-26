@@ -3,16 +3,22 @@ use napoli_lib::{
     Millicents,
 };
 use sea_orm::{ActiveValue::NotSet, Set};
+use time::format_description::well_known::Rfc3339;
 
 pub fn get_order_from_create_request(
     request: CreateOrderRequest,
 ) -> Option<napoli_server_persistent_entities::order::ActiveModel> {
+    let ts_str: String = time::OffsetDateTime::now_utc()
+        .format(&Rfc3339)
+        .expect("Should be able to format date");
+
     Some(napoli_server_persistent_entities::order::ActiveModel {
         id: NotSet,
         menu_url: Set(request.menu_url),
         // You can replace with: #[sea_orm(default_value="1")] in the model definition,
         // but loose the ability to use the enum directly there, this is why we do it here
         state: Set(napoli_lib::napoli::OrderState::Open as i32),
+        timestamp: Set(Some(ts_str)),
     })
 }
 
@@ -56,6 +62,7 @@ pub fn database_order_to_tonic_order(
         id: order.id,
         menu_url: order.menu_url,
         state: order.state,
+        timestamp: order.timestamp,
         entries: order_entries
             .map(|entry| {
                 // TODO Add tainted flag to the protocol

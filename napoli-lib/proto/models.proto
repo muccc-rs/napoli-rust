@@ -25,4 +25,5 @@ message Order {
     string menu_url = 2;
     OrderState state = 3;
     repeated OrderEntry entries = 4;
+    optional string timestamp = 5;
 }

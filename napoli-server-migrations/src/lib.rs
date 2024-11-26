@@ -4,6 +4,7 @@ mod m20220101_000001_create_table;
 mod m20230206_005125_rename_order_state_to_state;
 mod m20230206_005235_order_entry_add_price;
 mod m20230425_2051_price;
+mod m20241126_202903_add_date_to_order;
 
 pub struct Migrator;
 
@@ -15,6 +16,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20230206_005125_rename_order_state_to_state::Migration),
             Box::new(m20230206_005235_order_entry_add_price::Migration),
             Box::new(m20230425_2051_price::Migration),
+            Box::new(m20241126_202903_add_date_to_order::Migration),
         ]
     }
 }
