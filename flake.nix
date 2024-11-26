@@ -25,7 +25,7 @@
 
         toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
         dev-toolchain = toolchain.override {
-          extensions = [ "rust-src" "rls" "rustfmt" ];
+          extensions = [ "rust-src" "rust-analyzer" "rustfmt" "clippy" "rustc" "cargo" ];
         };
 
         naersk' = pkgs.callPackage naersk {
