@@ -74,3 +74,4 @@ target
 bonnie.toml
 .envrc
 .direnv
+.aider*
