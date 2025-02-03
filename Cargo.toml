@@ -7,4 +7,5 @@ members = [
     "napoli-server-persistent-entities",
     "napoli-client-grpc-web",
     "napoli-pain",
+    "napoli-pain/src-napoli-app",
 ]
