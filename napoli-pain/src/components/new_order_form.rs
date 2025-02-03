@@ -21,6 +21,7 @@ pub fn new_order_form(props: &NewOrderFormProps) -> Html {
                 type="url"
                 placeholder="https://..."
                 value={menu_url.to_string()}
+                maxlength="210"
                 oninput={move |e: InputEvent| {
                     let input = e.target_unchecked_into::<web_sys::HtmlInputElement>();
                     menu_url.set(input.value());

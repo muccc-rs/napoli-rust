@@ -1,6 +1,7 @@
 mod errors;
 mod model_adapters;
 mod server;
+mod validate;
 
 use napoli_lib::napoli::order_service_server::OrderServiceServer;
 use napoli_lib::napoli::FILE_DESCRIPTOR_SET;

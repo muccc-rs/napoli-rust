@@ -14,6 +14,7 @@ use tonic::{Request, Response, Status};
 
 use crate::errors::map_to_status;
 use crate::model_adapters::{self, get_order_entry_from_add_request};
+use crate::validate;
 
 pub struct NapoliServer {
     db_handle: DatabaseConnection,
@@ -118,7 +119,11 @@ impl npb::order_service_server::OrderService for NapoliServer {
         &self,
         request: tonic::Request<npb::CreateOrderRequest>,
     ) -> Result<Response<npb::SingleOrderReply>, Status> {
-        let order = match model_adapters::get_order_from_create_request(request.into_inner()) {
+        let request = request.into_inner();
+
+        validate::length("menu_url", &request.menu_url)?;
+
+        let order = match model_adapters::get_order_from_create_request(request) {
             Some(order) => order,
             None => return Err(Status::internal("no order non")),
         };
@@ -160,6 +165,10 @@ impl npb::order_service_server::OrderService for NapoliServer {
 
         // Add order entry
         let order_entry = get_order_entry_from_add_request(request.to_owned());
+
+        validate::length("food", &request.food)?;
+        validate::length("buyer", &request.buyer)?;
+
         let order_entry = match order_entry {
             Some(order_entry) => order_entry,
             None => return Err(Status::internal("Order entry parse error")),

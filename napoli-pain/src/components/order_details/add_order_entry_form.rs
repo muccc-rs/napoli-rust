@@ -38,6 +38,7 @@ pub fn add_order_entry_form(props: &AddOrderEntryFormProps) -> Html {
                     name="food"
                     type="text"
                     minlength=2
+                    maxlength=210
                     placeholder="Food"
                     required=true
                     value={food.to_string()}
@@ -54,6 +55,7 @@ pub fn add_order_entry_form(props: &AddOrderEntryFormProps) -> Html {
                         name="buyer"
                         type="text"
                         minlength=2
+                        maxlength=210
                         placeholder="Buyer"
                         required=true
                         value={buyer.to_string()}
