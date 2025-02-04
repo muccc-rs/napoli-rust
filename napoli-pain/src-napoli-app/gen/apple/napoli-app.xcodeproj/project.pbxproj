@@ -1,0 +1,468 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0A0A5F8824A3FD10B9F8B9B2 /* libapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FDE070EBC1EB3147DD13DAA2 /* libapp.a */; };
+		17BFF44DC5A980216F6B3772 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB68972EF98B385F1E09C7C7 /* CoreGraphics.framework */; };
+		308112F5265A7890FA0F3427 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A30D2248EA1099C9900B137 /* MetalKit.framework */; };
+		3854930A35D69043A5B8DB8C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F91EBC86BA30D56384CAA142 /* Assets.xcassets */; };
+		4A167EC976F868B03BF8B7DF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 464155100E009D39DBD50C00 /* Security.framework */; };
+		8D67A059B23F0B011E8258CB /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4547EE16A000C25E5A9304FE /* QuartzCore.framework */; };
+		9655E29F29D5AF0F5A4C9940 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 02344483FBC55D13B60468C5 /* LaunchScreen.storyboard */; };
+		978572C6335659C59813ABA6 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A714B582744C2E8932CD9BBF /* WebKit.framework */; };
+		A3ED813ECA16F1959B877BB0 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 07C18BC737EB8886E5A3FF74 /* main.mm */; };
+		DE26BD9DCC39DC45BBA57CE6 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = DEF7102613B7E4CFC69C29A0 /* assets */; };
+		E95986FF4A47290D7224FD0A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 218E7B9925AAE903B0B667F2 /* UIKit.framework */; };
+		FF333182189D153314796F8C /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D24253B4A4979CF58D231A37 /* Metal.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		02344483FBC55D13B60468C5 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		07C18BC737EB8886E5A3FF74 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		1F4BC5C4238FDE7611892F41 /* napoli-app_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "napoli-app_iOS.entitlements"; sourceTree = "<group>"; };
+		218E7B9925AAE903B0B667F2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		404366B960147C241F2B0ED4 /* lib.rs */ = {isa = PBXFileReference; path = lib.rs; sourceTree = "<group>"; };
+		4547EE16A000C25E5A9304FE /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		464155100E009D39DBD50C00 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		6E5E30ECA2E3DFFE28EA4E25 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7269212A35BC1F200A361C0F /* napoli-app_iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "napoli-app_iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A30D2248EA1099C9900B137 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		8A0DC70357659FA9C960B985 /* main.rs */ = {isa = PBXFileReference; path = main.rs; sourceTree = "<group>"; };
+		A714B582744C2E8932CD9BBF /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		B33A448A6BF8943CF65E9454 /* bindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
+		BB68972EF98B385F1E09C7C7 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		D24253B4A4979CF58D231A37 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		DEF7102613B7E4CFC69C29A0 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = SOURCE_ROOT; };
+		F91EBC86BA30D56384CAA142 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FDE070EBC1EB3147DD13DAA2 /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		44ED0E90C664F47514E35B9F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A0A5F8824A3FD10B9F8B9B2 /* libapp.a in Frameworks */,
+				17BFF44DC5A980216F6B3772 /* CoreGraphics.framework in Frameworks */,
+				FF333182189D153314796F8C /* Metal.framework in Frameworks */,
+				308112F5265A7890FA0F3427 /* MetalKit.framework in Frameworks */,
+				8D67A059B23F0B011E8258CB /* QuartzCore.framework in Frameworks */,
+				4A167EC976F868B03BF8B7DF /* Security.framework in Frameworks */,
+				E95986FF4A47290D7224FD0A /* UIKit.framework in Frameworks */,
+				978572C6335659C59813ABA6 /* WebKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		14D58B87B6D4AC56A2C6F177 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7269212A35BC1F200A361C0F /* napoli-app_iOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		17EDD9A2092CB7FB9A2432E0 /* Externals */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Externals;
+			sourceTree = "<group>";
+		};
+		361D8298E223A1EC6AE43F28 /* napoli-app */ = {
+			isa = PBXGroup;
+			children = (
+				07C18BC737EB8886E5A3FF74 /* main.mm */,
+				530C48FF72DC330B9A454E43 /* bindings */,
+			);
+			path = "napoli-app";
+			sourceTree = "<group>";
+		};
+		3C5B0708F3CA7CCFF98E92E3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BB68972EF98B385F1E09C7C7 /* CoreGraphics.framework */,
+				FDE070EBC1EB3147DD13DAA2 /* libapp.a */,
+				D24253B4A4979CF58D231A37 /* Metal.framework */,
+				7A30D2248EA1099C9900B137 /* MetalKit.framework */,
+				4547EE16A000C25E5A9304FE /* QuartzCore.framework */,
+				464155100E009D39DBD50C00 /* Security.framework */,
+				218E7B9925AAE903B0B667F2 /* UIKit.framework */,
+				A714B582744C2E8932CD9BBF /* WebKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		464509F3FD98013B2C5A11A4 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				404366B960147C241F2B0ED4 /* lib.rs */,
+				8A0DC70357659FA9C960B985 /* main.rs */,
+			);
+			name = src;
+			path = ../../src;
+			sourceTree = "<group>";
+		};
+		4C5D0207298CE260A1D354DA /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				361D8298E223A1EC6AE43F28 /* napoli-app */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		530C48FF72DC330B9A454E43 /* bindings */ = {
+			isa = PBXGroup;
+			children = (
+				B33A448A6BF8943CF65E9454 /* bindings.h */,
+			);
+			path = bindings;
+			sourceTree = "<group>";
+		};
+		6148F4E2BE23E11C814BA656 = {
+			isa = PBXGroup;
+			children = (
+				DEF7102613B7E4CFC69C29A0 /* assets */,
+				F91EBC86BA30D56384CAA142 /* Assets.xcassets */,
+				02344483FBC55D13B60468C5 /* LaunchScreen.storyboard */,
+				17EDD9A2092CB7FB9A2432E0 /* Externals */,
+				A68AFF3D0B19494C41CD394D /* napoli-app_iOS */,
+				4C5D0207298CE260A1D354DA /* Sources */,
+				464509F3FD98013B2C5A11A4 /* src */,
+				3C5B0708F3CA7CCFF98E92E3 /* Frameworks */,
+				14D58B87B6D4AC56A2C6F177 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A68AFF3D0B19494C41CD394D /* napoli-app_iOS */ = {
+			isa = PBXGroup;
+			children = (
+				6E5E30ECA2E3DFFE28EA4E25 /* Info.plist */,
+				1F4BC5C4238FDE7611892F41 /* napoli-app_iOS.entitlements */,
+			);
+			path = "napoli-app_iOS";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9EEB5E9D2040A50173B90BE4 /* napoli-app_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 276E8C1BC5604CE89A7FA250 /* Build configuration list for PBXNativeTarget "napoli-app_iOS" */;
+			buildPhases = (
+				C2A9133A86E19C3A2D403436 /* Build Rust Code */,
+				C1F259851E24D296CF04E083 /* Sources */,
+				7C5C2AEEE1A8A8125BCD2F97 /* Resources */,
+				44ED0E90C664F47514E35B9F /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "napoli-app_iOS";
+			productName = "napoli-app_iOS";
+			productReference = 7269212A35BC1F200A361C0F /* napoli-app_iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1061371DDDB4A2438763D6B3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					9EEB5E9D2040A50173B90BE4 = {
+						DevelopmentTeam = F74L6Z7EVV;
+					};
+				};
+			};
+			buildConfigurationList = FDE730C4B266F0706D042811 /* Build configuration list for PBXProject "napoli-app" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 6148F4E2BE23E11C814BA656;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9EEB5E9D2040A50173B90BE4 /* napoli-app_iOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7C5C2AEEE1A8A8125BCD2F97 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3854930A35D69043A5B8DB8C /* Assets.xcassets in Resources */,
+				9655E29F29D5AF0F5A4C9940 /* LaunchScreen.storyboard in Resources */,
+				DE26BD9DCC39DC45BBA57CE6 /* assets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C2A9133A86E19C3A2D403436 /* Build Rust Code */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Rust Code";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Externals/x86_64/${CONFIGURATION}/libapp.a",
+				"$(SRCROOT)/Externals/arm64/${CONFIGURATION}/libapp.a",
+				"$(SRCROOT)/Externals/arm64-sim/${CONFIGURATION}/libapp.a",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cargo tauri ios xcode-script -v --platform ${PLATFORM_DISPLAY_NAME:?} --sdk-root ${SDKROOT:?} --framework-search-paths \"${FRAMEWORK_SEARCH_PATHS:?}\" --header-search-paths \"${HEADER_SEARCH_PATHS:?}\" --gcc-preprocessor-definitions \"${GCC_PREPROCESSOR_DEFINITIONS:-}\" --configuration ${CONFIGURATION:?} ${FORCE_COLOR} ${ARCHS:?}";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C1F259851E24D296CF04E083 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A3ED813ECA16F1959B877BB0 /* main.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		08D8F21327F3A6B41FCFBD2A /* debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ARCHS = (
+					arm64,
+					"arm64-sim",
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "napoli-app_iOS/napoli-app_iOS.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = "F74L6Z7EVV";
+				ENABLE_BITCODE = NO;
+				"EXCLUDED_ARCHS[sdk=iphoneos*]" = "arm64-sim x86_64";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				INFOPLIST_FILE = "napoli-app_iOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64-sim]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64-sim/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = software.geile.pizza.app;
+				PRODUCT_NAME = "napoli-app";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64  arm64-sim";
+			};
+			name = debug;
+		};
+		2076A5332A9EB4D9CF6CB0EF /* release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = release;
+		};
+		A541BAA2C8FFD86A09988428 /* debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = debug;
+		};
+		FB97D0AC5474C56A649C6263 /* release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ARCHS = (
+					arm64,
+					"arm64-sim",
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "napoli-app_iOS/napoli-app_iOS.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = "F74L6Z7EVV";
+				ENABLE_BITCODE = NO;
+				"EXCLUDED_ARCHS[sdk=iphoneos*]" = "arm64-sim x86_64";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				INFOPLIST_FILE = "napoli-app_iOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64-sim]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64-sim/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = software.geile.pizza.app;
+				PRODUCT_NAME = "napoli-app";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64  arm64-sim";
+			};
+			name = release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		276E8C1BC5604CE89A7FA250 /* Build configuration list for PBXNativeTarget "napoli-app_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				08D8F21327F3A6B41FCFBD2A /* debug */,
+				FB97D0AC5474C56A649C6263 /* release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = debug;
+		};
+		FDE730C4B266F0706D042811 /* Build configuration list for PBXProject "napoli-app" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A541BAA2C8FFD86A09988428 /* debug */,
+				2076A5332A9EB4D9CF6CB0EF /* release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1061371DDDB4A2438763D6B3 /* Project object */;
+}
