@@ -174,6 +174,11 @@ impl npb::order_service_server::OrderService for NapoliServer {
             None => return Err(Status::internal("Order entry parse error")),
         };
 
+        // lmao this api
+        if *order_entry.price_in_millicents.as_ref() > 10_000_00_000 {
+            return Err(tonic::Status::invalid_argument("bro that's way too expensive bro"));
+        }
+
         order_entry
             .insert(&self.db_handle)
             .await

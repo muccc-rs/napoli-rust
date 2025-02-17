@@ -175,18 +175,24 @@ impl Component for OrderDetails {
                     })
                     .collect::<Vec<_>>();
 
-            let total_millicents: i64 = order
+            let total_millicents: Option<i64> = order
                 .entries
                 .iter()
                 .map(|order| order.price_in_millicents)
-                .sum();
+                .try_fold(0i64, |left, right| left.checked_add(right));
 
-            let total_str = match napoli_lib::Millicents::from_raw(total_millicents) {
-                Ok(price) => {
+            let total_str = match total_millicents.map(napoli_lib::Millicents::from_raw) {
+                Some(Ok(price)) => {
                     let (euros, cents) = price.to_euro_tuple();
                     format!("{}.{:02}\u{00a0}€", euros, cents)
                 }
-                Err(e) => format!("Invalid price value: {}; Error: {:?}", total_millicents, e),
+                Some(Err(e)) => {
+                    format!(
+                        "Invalid price value: {:?}; Error: {:?}",
+                        total_millicents, e
+                    )
+                }
+                None => "Error: Total sum overflowed".to_string(),
             };
 
             let id = order.id;
