@@ -1,4 +1,3 @@
-use sea_orm::Statement;
 use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
@@ -26,24 +25,7 @@ impl MigrationTrait for Migration {
         Ok(())
     }
 
-    async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+    async fn down(&self, _manager: &SchemaManager) -> Result<(), DbErr> {
         Ok(())
     }
-}
-
-/// Learn more at https://docs.rs/sea-query#iden
-
-#[derive(Iden)]
-enum Order {
-    Table,
-    Id,
-    MenuUrl,
-}
-
-#[derive(Iden)]
-enum OrderEntry {
-    Table,
-    Id,
-    Buyer,
-    Food,
 }

@@ -2,7 +2,6 @@ use yew::prelude::*;
 
 mod order_list_item;
 use self::order_list_item::OrderListItem;
-use crate::components::toast::{Toast, ToastKind};
 
 #[derive(PartialEq, Eq, Properties)]
 pub struct OrderListProps {
