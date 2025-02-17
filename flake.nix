@@ -41,6 +41,10 @@
         devShell = pkgs.mkShell rec {
           name = "napoli-rust";
 
+          libraries = with pkgs; [
+            webkitgtk_4_1
+          ];
+          
           packages = with pkgs; [
             # Development Tools
             dev-toolchain
@@ -52,6 +56,7 @@
             nodejs
             nodePackages.npm
             nodePackages.tailwindcss
+            webkitgtk_4_1
           ] ++ (
             # Apple libraries if necessary
             lib.optional stdenv.isDarwin [
