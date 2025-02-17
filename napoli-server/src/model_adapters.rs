@@ -58,11 +58,13 @@ pub fn database_order_to_tonic_order(
     order_entries.sort_by_key(|entry| entry.id);
     let order_entries = order_entries.into_iter();
 
+    let timestamp = order.timestamp.unwrap_or(String::from(""));
+
     napoli_lib::napoli::Order {
         id: order.id,
         menu_url: order.menu_url,
         state: order.state,
-        timestamp: order.timestamp,
+        timestamp,
         entries: order_entries
             .map(|entry| {
                 // TODO Add tainted flag to the protocol
