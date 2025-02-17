@@ -1,7 +1,5 @@
 target/setup-yew.touchfile:
-	rustup target add wasm32-unknown-unknown
 	cargo install --locked trunk
-	npx tailwindcss
 	mkdir -p target
 	touch target/setup-yew.touchfile
 
