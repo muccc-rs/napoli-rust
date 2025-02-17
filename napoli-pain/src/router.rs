@@ -1,6 +1,7 @@
 use crate::components::homepage::Homepage;
 use crate::components::order_details::OrderDetails;
 use crate::components::server_name::ServerName;
+use crate::components::toast::ToastHost;
 use crate::BACKEND_URL;
 
 use napoli_lib::napoli::ObjectId;
@@ -28,6 +29,7 @@ fn switch(routes: Route) -> Html {
 pub fn app() -> Html {
     html! {
         <div class="m-4 font-mono">
+            <ToastHost />
             <ServerName name={BACKEND_URL} />
             <BrowserRouter>
                 <Switch<Route> render={switch} /> // <- must be child of <BrowserRouter>

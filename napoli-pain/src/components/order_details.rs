@@ -24,6 +24,7 @@ pub struct OrderDetailsProps {
 pub struct OrderDetails {
     order: Option<npb::Order>,
     live_streaming_status: LiveStreamingStatus,
+    error: Option<String>,
 }
 
 pub enum OrderDetailsMsg {
@@ -31,6 +32,7 @@ pub enum OrderDetailsMsg {
     OrderFetchFailed(service::ServiceError),
     GotOrderUpdated(npb::Order),
     AddOrderEntry(npb::AddOrderEntryRequest),
+    AddOrderFailed(service::ServiceError),
     SetOrderEntryPaid { entry_id: ObjectId, paid: bool },
     RemoveOrderEntry { entry_id: ObjectId },
 
@@ -66,6 +68,7 @@ impl Component for OrderDetails {
         Self {
             order: None,
             live_streaming_status: LiveStreamingStatus::Connecting,
+            error: None,
         }
     }
 
@@ -113,10 +116,14 @@ impl Component for OrderDetails {
                 ctx.link().send_future(async move {
                     match svc.add_order_entry(add_order_entry_request).await {
                         Ok(order) => Self::Message::GotOrderUpdated(order),
-                        Err(e) => Self::Message::OrderFetchFailed(e),
+                        Err(e) => Self::Message::AddOrderFailed(e),
                     }
                 });
                 false
+            }
+            Self::Message::AddOrderFailed(e) => {
+                self.error = Some(format!("{e:?}"));
+                true
             }
             Self::Message::GotOrderUpdated(order) => {
                 self.order = Some(order);
@@ -199,8 +206,17 @@ impl Component for OrderDetails {
             let menu_url = order.menu_url.clone();
             let menu_url_text = menu_url.clone();
 
+            let error_toast_maybe = if let Some(error) = self.error.as_ref() {
+                html! {
+                    <crate::components::toast::Toast message={format!("Error: {error:?}")} kind={crate::components::toast::ToastKind::Error} />
+                }
+            } else {
+                html!()
+            };
+
             html! {
                 <div class="my-8">
+                    {error_toast_maybe}
                     <Link<Route> to={Route::Home} classes="btn"> {"< Back"} </Link<Route>>
                     <h1 class="mt-8">{"Order #"}{id}</h1>
                     <p>{"Menu URL: "}<a class="link" href={menu_url} target="_blank" rel="noopener noreferrer">{menu_url_text}</a></p>
