@@ -9,9 +9,9 @@ pub struct NewOrderFormProps {
 pub fn new_order_form(props: &NewOrderFormProps) -> Html {
     let menu_url = use_state(|| "".to_string());
 
-    let mu_clone = menu_url.clone();
+    let mu_clone = menu_url.trim().to_owned();
 
-    let onclick = props.onclick.reform(move |_| mu_clone.to_string());
+    let onclick = props.onclick.reform(move |_| mu_clone.clone());
     html! {
         <form class="my-8" onsubmit={move |e: SubmitEvent| { e.prevent_default() }}>
             <label for="menu_url" class="mr-4">{"Menu URL:"}</label>

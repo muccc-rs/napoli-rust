@@ -300,7 +300,7 @@ pub fn group_by(order_entries: &[npb::OrderEntry]) -> HashMap<String, usize> {
     let mut group_by = std::collections::HashMap::new();
 
     for order_entry in order_entries {
-        let food = order_entry.food.clone().to_ascii_lowercase();
+        let food = order_entry.food.clone().to_ascii_lowercase().trim();
         let group_by_entry = group_by.entry(food).or_insert(0);
         *group_by_entry += 1;
     }
