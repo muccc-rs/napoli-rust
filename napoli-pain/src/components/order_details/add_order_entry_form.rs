@@ -21,8 +21,8 @@ pub fn add_order_entry_form(props: &AddOrderEntryFormProps) -> Html {
     let is_price_valid = price_mc.is_ok();
     let is_form_valid = is_food_valid && is_buyer_valid && is_price_valid;
 
-    let food_str = food.to_string();
-    let buyer_str = buyer.to_string();
+    let food_str = food.trim().to_string();
+    let buyer_str = buyer.trim().to_string();
 
     let millicents = price_mc.map(|v| v.raw()).unwrap_or(0);
 
