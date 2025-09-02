@@ -10,6 +10,7 @@ pub struct Model {
     pub menu_url: String,
     pub state: i32,
     pub timestamp: Option<String>,
+    pub cutoff_time: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

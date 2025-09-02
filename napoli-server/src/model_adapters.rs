@@ -19,6 +19,7 @@ pub fn get_order_from_create_request(
         // but loose the ability to use the enum directly there, this is why we do it here
         state: Set(napoli_lib::napoli::OrderState::Open as i32),
         timestamp: Set(Some(ts_str)),
+        cutoff_time: Set(request.cutoff_time),
     })
 }
 
@@ -59,12 +60,14 @@ pub fn database_order_to_tonic_order(
     let order_entries = order_entries.into_iter();
 
     let timestamp = order.timestamp.unwrap_or(String::from(""));
+    let cutoff_time = order.cutoff_time;
 
     napoli_lib::napoli::Order {
         id: order.id,
         menu_url: order.menu_url,
         state: order.state,
         timestamp,
+        cutoff_time,
         entries: order_entries
             .map(|entry| {
                 // TODO Add tainted flag to the protocol

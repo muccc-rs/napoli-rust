@@ -6,6 +6,7 @@ mod m20230206_005235_order_entry_add_price;
 mod m20230425_2051_price;
 mod m20241126_202903_add_date_to_order;
 mod m20250203_200826_throw_away_long_strings;
+mod m20250902_172943_add_cutoff_time;
 
 pub struct Migrator;
 
@@ -16,9 +17,10 @@ impl MigratorTrait for Migrator {
             Box::new(m20220101_000001_create_table::Migration),
             Box::new(m20230206_005125_rename_order_state_to_state::Migration),
             Box::new(m20230206_005235_order_entry_add_price::Migration),
-            Box::new(m20230425_2051_price::Migration),
             Box::new(m20241126_202903_add_date_to_order::Migration),
+            Box::new(m20230425_2051_price::Migration),
             Box::new(m20250203_200826_throw_away_long_strings::Migration),
+            Box::new(m20250902_172943_add_cutoff_time::Migration),
         ]
     }
 }

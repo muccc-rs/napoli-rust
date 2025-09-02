@@ -16,6 +16,7 @@ message GetOrderRequest {
 
 message CreateOrderRequest {
     string menu_url = 1; // Max length: 210 characters
+    string cutoff_time = 2;
 }
 message SingleOrderReply {
     Order order = 1;

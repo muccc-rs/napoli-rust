@@ -26,4 +26,5 @@ message Order {
     OrderState state = 3;
     repeated OrderEntry entries = 4;
     string timestamp = 5;
+    string cutoff_time = 6;
 }

@@ -1,3 +1,4 @@
+use time::OffsetDateTime;
 use tonic_web_wasm_client::Client;
 use yew::prelude::*;
 
@@ -61,10 +62,22 @@ impl Napoli {
         Ok(order.into_inner().order.expect("fucked up"))
     }
 
-    pub async fn create_order(&mut self, menu_url: String) -> Result<npb::Order> {
+    pub async fn create_order(
+        &mut self,
+        menu_url: String,
+        cutoff_time: Option<time::OffsetDateTime>,
+    ) -> Result<npb::Order> {
         let order = self
             .client
-            .create_order(npb::CreateOrderRequest { menu_url })
+            .create_order(npb::CreateOrderRequest {
+                menu_url,
+                cutoff_time: cutoff_time
+                    .map(|t| {
+                        t.format(&time::format_description::well_known::Rfc3339)
+                            .expect("failed to format cutoff_time")
+                    })
+                    .unwrap_or_default(),
+            })
             .await?;
         Ok(order.into_inner().order.expect("fucked up"))
     }

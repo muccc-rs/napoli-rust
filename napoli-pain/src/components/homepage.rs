@@ -1,5 +1,6 @@
 use crate::{components::new_order_form::NewOrderForm, service};
 use napoli_lib::napoli as npb;
+use time::OffsetDateTime;
 use yew::prelude::*;
 
 use crate::components::order_list::OrderList;
@@ -7,7 +8,7 @@ use crate::components::order_list::OrderList;
 pub enum Msg {
     GotOrders(Vec<npb::Order>),
     OrderFetchFailed(service::ServiceError),
-    AddOrder(String),
+    AddOrder((String, Option<OffsetDateTime>)),
 }
 #[derive(Clone)]
 pub enum FetchOrdersState {
@@ -52,11 +53,11 @@ impl Component for Homepage {
                 self.orders = FetchOrdersState::Failed(e);
                 true
             }
-            Msg::AddOrder(menu_url) => {
+            Msg::AddOrder((menu_url, cutoff_time)) => {
                 let mut svc = service::Napoli::new(crate::BACKEND_URL.to_string());
                 let orders = self.orders.clone();
                 _ctx.link().send_future(async move {
-                    match svc.create_order(menu_url).await {
+                    match svc.create_order(menu_url, cutoff_time).await {
                         Ok(order) => match orders {
                             FetchOrdersState::Got(orders) => {
                                 let mut orders = orders;
