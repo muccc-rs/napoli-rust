@@ -1,0 +1,206 @@
+openapi: 3.1.0
+info:
+  title: Napoli Pizza Ordering API
+  description: API for managing group pizza orders. View orders, create new orders, and add your food to an existing order.
+  version: 1.0.0
+servers:
+  - url: https://napoli-rest.geile.software
+    description: Napoli REST server
+security:
+  - bearerAuth: []
+paths:
+  /orders:
+    get:
+      operationId: getOrders
+      summary: Get all orders
+      description: Returns all orders, optionally without entry details for a summary view.
+      parameters:
+        - name: summary
+          in: query
+          required: false
+          description: When true, returns orders without individual food entries.
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: "#/components/schemas/Order"
+                    - $ref: "#/components/schemas/OrderSummary"
+    post:
+      operationId: createOrder
+      summary: Create a new order
+      description: Creates a new pizza order with a link to the restaurant menu. The order starts in OPEN state.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+      responses:
+        "200":
+          description: The created order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Validation error (e.g. menu_url too long)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      summary: Get a single order
+      description: Returns a single order with all its food entries.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The order ID
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: The order with entries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /orders/{id}/entries:
+    post:
+      operationId: addEntry
+      summary: Add food to an order
+      description: Add your food choice to an existing open order. The order must be in OPEN state.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The order ID
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddEntryRequest"
+      responses:
+        "200":
+          description: The updated order with all entries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Validation error (order not open, price invalid, fields too long)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique order ID
+        menu_url:
+          type: string
+          description: URL to the restaurant menu
+        state:
+          type: string
+          enum: [OPEN, CLOSED, DONE]
+          description: Current order state
+        timestamp:
+          type: string
+          description: RFC 3339 timestamp of when the order was created
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/Entry"
+          description: Food entries added to this order
+      required: [id, menu_url, state, timestamp, entries]
+    OrderSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        menu_url:
+          type: string
+        state:
+          type: string
+          enum: [OPEN, CLOSED, DONE]
+        timestamp:
+          type: string
+      required: [id, menu_url, state, timestamp]
+    Entry:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique entry ID
+        buyer:
+          type: string
+          description: Name of the person ordering
+        food:
+          type: string
+          description: What they are ordering
+        price_in_millicents:
+          type: integer
+          description: Price in millicents (100000 = 1 EUR)
+        paid:
+          type: boolean
+          description: Whether this entry has been paid for
+      required: [id, buyer, food, price_in_millicents, paid]
+    CreateOrderRequest:
+      type: object
+      properties:
+        menu_url:
+          type: string
+          description: URL to the restaurant menu (max 210 characters)
+      required: [menu_url]
+    AddEntryRequest:
+      type: object
+      properties:
+        buyer:
+          type: string
+          description: Your name (max 210 characters)
+        food:
+          type: string
+          description: What you want to order (max 210 characters)
+        price:
+          type: string
+          description: Price in euros as a string, e.g. "8.50"
+      required: [buyer, food, price]
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      required: [error]

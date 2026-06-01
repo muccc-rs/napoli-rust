@@ -8,4 +8,5 @@ members = [
     "napoli-client-grpc-web",
     "napoli-pain",
     "napoli-pain/src-napoli-app",
+    "napoli-rest",
 ]
